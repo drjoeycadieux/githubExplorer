@@ -1,11 +1,48 @@
-🚀 GitHub ExplorerAn interactive, responsive single-page web application built with HTML5, Pure CSS (with custom variables for themes), and JavaScript (ES6+). GitHub Explorer allows users to inspect GitHub profiles, view public repositories, browse followers/following networks, and perform natural language developer discovery.✨ Features👤 Profile Overview: View user avatars, bios, company information, location, website links, joined dates, and core stats (Repositories, Followers, Following).📦 Repository Management:Live filtering/search within fetched repositories.Sorting options by Last Updated, Most Stars, Most Forks, and Name.Client-side pagination for seamless browsing.Dynamic language badges with distinct language colors.👥 Social Network Exploration:View lists of Followers and Following.Interactive user cards allowing one-click profile inspection.🤖 AI Natural Language Search:Search developers using natural language prompts (e.g., "Top Linux kernel developer", "React developer in San Francisco").Displays match recommendations alongside full profile inspection.🔑 Rate Limit & API Token Support:Live status indicator tracking remaining GitHub API requests.Personal Access Token (PAT) modal to expand rate limits from 60 to 5,000 requests/hour.🌙 Dark & Light Themes: Built-in toggle supporting persistent UI state and clean CSS styling without external utility frameworks.🛠️ Built WithHTML5: Semantic markup layout.Vanilla CSS3: Custom CSS variables, flexbox, CSS grid, and dark mode transitions (No Tailwind or CSS frameworks).JavaScript (ES6+): Async/Await fetch logic, state management, and DOM manipulation.GitHub REST API: REST endpoints for fetching user profiles, repos, and search query results.FontAwesome: Icons for UI controls.🚀 Getting StartedPrerequisitesNo build tools or package managers (like npm or yarn) are required to run this project. All you need is a modern web browser.Local InstallationClone the repository:git clone https://github.com/your-username/github-explorer.git
-Navigate to the project directory:cd github-explorer
-Open the project:Simply double-click index.html or open it with your browser:# On macOS
-open index.html
+# GitHub Explorer
 
-# On Linux
-xdg-open index.html
+A static web application for exploring GitHub profiles, repositories, followers, and following. It also includes a private vulnerability-report form with a live Markdown preview.
 
-# On Windows
-start index.html
-🔑 Increasing API Rate LimitsBy default, unauthenticated requests to the GitHub REST API are limited to 60 requests per hour.To increase your limit to 5,000 requests per hour:Click the API Token button in the header.Generate a Personal Access Token on GitHub with read-only public access (public_repo / read:user).Paste the token into the modal and click Save Token. The token is securely stored in your browser's localStorage.👤 AuthorDeveloped with ❤️ by Joey CadieuxWebsite / Portfolio: GitHub Profile📄 LicenseThis project is licensed under the MIT License – see the LICENSE file for details.
+## Features
+
+- Search for GitHub users by username and inspect profile details and activity counts.
+- Browse public repositories with filtering, sorting, and pagination.
+- Browse a user's followers and following list.
+- Search GitHub users from a natural-language prompt. This is keyword-based discovery; it does not call an AI model.
+- Optionally use a GitHub personal access token to increase API rate limits. The token is stored in browser `localStorage` and sent directly to GitHub from the browser.
+- Switch between light and dark themes.
+- Submit vulnerability reports with severity, affected asset, contact email, and Markdown-formatted technical details.
+
+## Run locally
+
+You need Node.js and npm. From the project directory, run:
+
+```sh
+npm install
+npm start
+```
+
+Open the local URL printed by the server. Use HTTP rather than opening `index.html` or `vulnerability-report.html` with a `file://` URL; the report page loads ES modules from external sources.
+
+## Vulnerability reports
+
+The report form is linked from the main page footer. Reports are written to the `vulnerabilityReports` collection in Cloud Firestore. The collection and its first document are created automatically on the first successful submission; no table or collection needs to be created manually.
+
+Before submissions can succeed:
+
+1. Create a Cloud Firestore database in the Firebase project.
+2. Deploy the rules in [`firestore.rules`](firestore.rules). They allow validated report creation and deny client reads, updates, and deletes.
+3. Confirm the web app settings in [`firebase-config.js`](firebase-config.js) match the Firebase project.
+
+See [`FIREBASE_SETUP.md`](FIREBASE_SETUP.md) for setup and privacy details. The public form does not use App Check or server-side rate limiting, so monitor Firestore usage and billing for abuse.
+
+## GitHub API token
+
+Unauthenticated GitHub API requests have a lower rate limit. You can optionally add a personal access token using the **API Token** control in the page header. Use a token with only the permissions required for public profile data. The token stays in that browser's local storage; do not commit it or share it.
+
+## Project files
+
+- `index.html` - GitHub Explorer interface and application logic.
+- `vulnerability-report.html` - Private report form and Markdown preview.
+- `firebase-config.js` - Firebase web app configuration.
+- `firestore.rules` - Firestore access rules for vulnerability reports.
+- `FIREBASE_SETUP.md` - Firebase deployment and privacy guidance.
