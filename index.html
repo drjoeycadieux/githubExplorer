@@ -1,2709 +1,1038 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GitHub Explorer</title>
-    <!-- FontAwesome for Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- Display and interface typefaces -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --bg-primary: #f2f1e9;
-        --bg-secondary: #fbfaf5;
-        --bg-card: #fffefa;
-        --border-color: #d9ddd2;
-        --text-primary: #1b2922;
-        --text-secondary: #66736a;
-        --text-muted: #879188;
-        --accent: #27684e;
-        --accent-hover: #1f583f;
-        --primary-btn: #27684e;
-        --primary-btn-hover: #1f583f;
-        --blue-accent: #27684e;
-        --purple-accent: #b85f3c;
-        --danger-bg: #f9e9e4;
-        --danger-text: #a83e2e;
-        --danger-border: #e7b4a8;
-        --shadow: 0 12px 30px rgba(38, 55, 43, 0.07);
-        --transition: all 0.2s ease;
-      }
-
-      html.dark {
-        --bg-primary: #111a16;
-        --bg-secondary: #18231d;
-        --bg-card: #1d2a23;
-        --border-color: #35463b;
-        --text-primary: #edf1e9;
-        --text-secondary: #b1beb3;
-        --text-muted: #84958a;
-        --accent: #8fc69e;
-        --accent-hover: #a4d6ae;
-        --primary-btn: #347553;
-        --primary-btn-hover: #438c64;
-        --blue-accent: #8fc69e;
-        --purple-accent: #e49a74;
-        --danger-bg: rgba(168, 62, 46, 0.18);
-        --danger-text: #f08f78;
-        --danger-border: rgba(240, 143, 120, 0.4);
-        --shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
-      }
-
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: 'Inter', sans-serif;
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        transition: background-color 0.2s, color 0.2s;
-      }
-
-      /* Maintenance Banner */
-      .maintenance-banner {
-        background-color: var(--banner-bg);
-        color: var(--banner-text);
-        text-align: center;
-        padding: 0.75rem 1rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        border-bottom: 2px solid var(--banner-border);
-        position: relative;
-        z-index: 60;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        letter-spacing: 0.01em;
-      }
-
-      .maintenance-banner i {
-        font-size: 1.1rem;
-        color: #1e1e1e;
-      }
-
-      .maintenance-banner .banner-close {
-        background: none;
-        border: none;
-        color: var(--banner-text);
-        opacity: 0.7;
-        cursor: pointer;
-        font-size: 1.1rem;
-        margin-left: 0.75rem;
-        padding: 0 0.25rem;
-        transition: opacity 0.2s;
-      }
-
-      .maintenance-banner .banner-close:hover {
-        opacity: 1;
-      }
-
-      /* Ensure header sticks below banner */
-      header {
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        background-color: var(--bg-secondary);
-        border-bottom: 1px solid var(--border-color);
-        backdrop-filter: blur(10px);
-      }
-
-      /* Add a small offset for sticky header when banner is visible */
-      .maintenance-banner + header {
-        top: 0;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-        width: 100%;
-      }
-
-      .header-inner {
-        height: 4rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .logo-box {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        cursor: pointer;
-      }
-
-      .logo-box i {
-        font-size: 1.8rem;
-      }
-
-      .logo-box span {
-        font-weight: 700;
-        font-size: 1.25rem;
-        letter-spacing: -0.025em;
-      }
-
-      .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .btn-icon {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 0.875rem;
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 500;
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        color: var(--text-primary);
-        cursor: pointer;
-        transition: var(--transition);
-      }
-
-      .btn-icon:hover {
-        border-color: var(--text-muted);
-      }
-
-      .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-      }
-      .status-dot.red {
-        background-color: #f85149;
-      }
-      .status-dot.green {
-        background-color: #238636;
-      }
-
-      main {
-        flex-grow: 1;
-        max-width: 1200px;
-        width: 100%;
-        margin: 0 auto;
-        padding: 2.5rem 1.5rem;
-      }
-
-      .search-section {
-        max-width: 650px;
-        margin: 0 auto 2.5rem auto;
-        text-align: center;
-      }
-
-      .search-section h1 {
-        font-size: 2.25rem;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.03em;
-      }
-
-      .search-section p {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .mode-selector {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-      }
-
-      .mode-btn {
-        padding: 0.375rem 1rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        transition: var(--transition);
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-      }
-
-      .mode-btn.active-user {
-        background: var(--blue-accent);
-        color: #ffffff;
-        border-color: var(--blue-accent);
-      }
-
-      .mode-btn.active-ai {
-        background: linear-gradient(
-          135deg,
-          var(--purple-accent),
-          var(--blue-accent)
-        );
-        color: #ffffff;
-        border-color: transparent;
-      }
-
-      .search-bar-wrapper {
-        display: flex;
-        align-items: center;
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 0.75rem;
-        box-shadow: var(--shadow);
-        overflow: hidden;
-        transition: var(--transition);
-      }
-
-      .search-bar-wrapper:focus-within {
-        border-color: var(--blue-accent);
-        box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3);
-      }
-
-      .search-bar-wrapper .search-icon {
-        padding-left: 1rem;
-        color: var(--text-muted);
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 0.875rem 1rem;
-        background: transparent;
-        border: none;
-        color: var(--text-primary);
-        font-size: 1rem;
-        outline: none;
-      }
-
-      .search-input::placeholder {
-        color: var(--text-muted);
-      }
-
-      .search-btn {
-        margin: 0.375rem;
-        padding: 0.625rem 1.25rem;
-        background: var(--blue-accent);
-        color: #ffffff;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: var(--transition);
-      }
-
-      .search-btn:hover {
-        opacity: 0.9;
-      }
-
-      /* AI Prompt Form Styling */
-      .ai-form-container {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        background: linear-gradient(
-          135deg,
-          rgba(130, 80, 223, 0.08),
-          rgba(9, 105, 218, 0.08)
-        );
-        border: 1px solid rgba(130, 80, 223, 0.3);
-        border-radius: 0.75rem;
-        padding: 1rem;
-        box-shadow: var(--shadow);
-      }
-
-      .ai-form-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--purple-accent);
-        padding-left: 0.25rem;
-      }
-
-      .ai-search-btn {
-        margin: 0.375rem;
-        padding: 0.625rem 1.25rem;
-        background: linear-gradient(
-          135deg,
-          var(--purple-accent),
-          var(--blue-accent)
-        );
-        color: #ffffff;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: var(--transition);
-      }
-
-      .ai-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        align-items: center;
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        padding-left: 0.25rem;
-      }
-
-      .ai-chip-btn {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.375rem;
-        color: var(--text-primary);
-        cursor: pointer;
-        transition: var(--transition);
-      }
-
-      .ai-chip-btn:hover {
-        border-color: var(--purple-accent);
-        color: var(--purple-accent);
-      }
-
-      .search-meta-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 0.75rem;
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        padding: 0 0.25rem;
-      }
-
-      .quick-suggestions button {
-        background: none;
-        border: none;
-        color: var(--blue-accent);
-        cursor: pointer;
-        text-decoration: underline;
-        margin-left: 0.25rem;
-      }
-
-      .loading-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 4rem 0;
-      }
-
-      .spinner {
-        width: 48px;
-        height: 48px;
-        border: 4px solid var(--border-color);
-        border-top-color: var(--blue-accent);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      .loading-text {
-        margin-top: 1rem;
-        font-weight: 500;
-        color: var(--text-secondary);
-      }
-
-      .error-card {
-        max-width: 500px;
-        margin: 2.5rem auto;
-        background-color: var(--danger-bg);
-        border: 1px solid var(--danger-border);
-        border-radius: 1rem;
-        padding: 2rem;
-        text-align: center;
-      }
-
-      .error-card i {
-        font-size: 2.5rem;
-        color: var(--danger-text);
-        margin-bottom: 0.75rem;
-      }
-
-      .error-card h3 {
-        color: var(--danger-text);
-        font-size: 1.15rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-      }
-
-      .error-card p {
-        color: var(--danger-text);
-        font-size: 0.85rem;
-        margin-bottom: 1.25rem;
-      }
-
-      .error-btn {
-        background-color: var(--danger-text);
-        color: #ffffff;
-        border: none;
-        padding: 0.5rem 1.25rem;
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-      }
-
-      /* Profile Card */
-      .profile-card {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: var(--shadow);
-        margin-bottom: 2rem;
-      }
-
-      .profile-header-flex {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      @media (min-width: 768px) {
-        .profile-header-flex {
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-        }
-      }
-
-      .profile-user-info {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        align-items: center;
-        text-align: center;
-      }
-
-      @media (min-width: 640px) {
-        .profile-user-info {
-          flex-direction: row;
-          align-items: flex-start;
-          text-align: left;
-        }
-      }
-
-      .profile-avatar {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        border: 2px solid var(--border-color);
-        object-fit: cover;
-        background: var(--bg-primary);
-      }
-
-      .profile-details h2 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.25rem;
-      }
-
-      .profile-username-link {
-        color: var(--blue-accent);
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 1rem;
-      }
-      .profile-username-link:hover {
-        text-decoration: underline;
-      }
-
-      .profile-bio {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        margin-top: 0.5rem;
-        max-width: 550px;
-        line-height: 1.5;
-      }
-
-      .profile-meta-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        margin-top: 0.75rem;
-        justify-content: center;
-      }
-      @media (min-width: 640px) {
-        .profile-meta-tags {
-          justify-content: flex-start;
-        }
-      }
-
-      .profile-meta-tags span {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-      }
-
-      .btn-github-external {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        background-color: var(--text-primary);
-        color: var(--bg-primary);
-        text-decoration: none;
-        padding: 0.625rem 1.25rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        font-size: 0.85rem;
-        transition: var(--transition);
-      }
-      .btn-github-external:hover {
-        opacity: 0.85;
-      }
-
-      /* Stats Grid */
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border-color);
-        text-align: center;
-      }
-
-      .stat-item {
-        background-color: var(--bg-primary);
-        padding: 0.875rem;
-        border-radius: 0.75rem;
-        cursor: pointer;
-        transition: var(--transition);
-      }
-      .stat-item:hover {
-        background-color: rgba(110, 118, 129, 0.1);
-      }
-
-      .stat-title {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-secondary);
-        font-weight: 700;
-        margin-bottom: 0.25rem;
-      }
-
-      .stat-value {
-        font-size: 1.35rem;
-        font-weight: 700;
-      }
-
-      .tabs-nav {
-        display: flex;
-        gap: 0.5rem;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 1.5rem;
-        overflow-x: auto;
-      }
-
-      .tab-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.875rem 1rem;
-        background: none;
-        border: none;
-        border-bottom: 2px solid transparent;
-        font-weight: 500;
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        cursor: pointer;
-        white-space: nowrap;
-        transition: var(--transition);
-      }
-
-      .tab-btn.active {
-        border-bottom-color: var(--blue-accent);
-        color: var(--blue-accent);
-      }
-
-      .tab-badge {
-        padding: 0.125rem 0.5rem;
-        border-radius: 9999px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        background-color: var(--bg-primary);
-        color: var(--text-secondary);
-      }
-
-      .tab-btn.active .tab-badge {
-        background-color: rgba(31, 111, 235, 0.15);
-        color: var(--blue-accent);
-      }
-
-      /* Repositories Controls */
-      .repo-toolbar {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        padding: 1rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1rem;
-      }
-      @media (min-width: 640px) {
-        .repo-toolbar {
-          flex-direction: row;
-          justify-content: space-between;
-          align-items: center;
-        }
-      }
-
-      .repo-search-box {
-        position: relative;
-        width: 100%;
-        max-width: 280px;
-      }
-
-      .repo-search-box i {
-        position: absolute;
-        left: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-        font-size: 0.75rem;
-      }
-
-      .repo-search-input {
-        width: 100%;
-        padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        color: var(--text-primary);
-        outline: none;
-      }
-
-      .repo-sort-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-      }
-
-      .repo-select {
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-        padding: 0.375rem 0.75rem;
-        font-size: 0.8rem;
-        color: var(--text-primary);
-        outline: none;
-      }
-
-      /* Grids for Repos & Users */
-      .grid-2 {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-      @media (min-width: 768px) {
-        .grid-2 {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-
-      .grid-3 {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-      @media (min-width: 640px) {
-        .grid-3 {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-      @media (min-width: 1024px) {
-        .grid-3 {
-          grid-template-columns: repeat(3, 1fr);
-        }
-      }
-
-      /* Repo Card */
-      .repo-card {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 0.875rem;
-        padding: 1.25rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        box-shadow: var(--shadow);
-        transition: var(--transition);
-      }
-      .repo-card:hover {
-        border-color: var(--blue-accent);
-      }
-
-      .repo-card-title {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .repo-card-title a {
-        font-weight: 700;
-        color: var(--blue-accent);
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.95rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .repo-card-title a:hover {
-        text-decoration: underline;
-      }
-
-      .repo-badge {
-        font-size: 0.7rem;
-        padding: 0.125rem 0.5rem;
-        border-radius: 9999px;
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-        font-weight: 500;
-      }
-
-      .repo-desc {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        line-height: 1.4;
-      }
-
-      .repo-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 1rem;
-        padding-top: 0.875rem;
-        border-top: 1px solid var(--border-color);
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-      }
-
-      .repo-footer-left {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .lang-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-      }
-
-      /* User Card (Followers/Following) */
-      .user-card {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 0.875rem;
-        padding: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        cursor: pointer;
-        box-shadow: var(--shadow);
-        transition: var(--transition);
-      }
-      .user-card:hover {
-        border-color: var(--blue-accent);
-      }
-
-      .user-card img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: 1px solid var(--border-color);
-        object-fit: cover;
-      }
-
-      .user-card-info h4 {
-        font-weight: 700;
-        font-size: 0.95rem;
-        margin-bottom: 0.125rem;
-        color: var(--text-primary);
-      }
-      .user-card:hover .user-card-info h4 {
-        color: var(--blue-accent);
-      }
-
-      .user-card-info a {
-        font-size: 0.75rem;
-        color: var(--blue-accent);
-        text-decoration: none;
-      }
-      .user-card-info a:hover {
-        text-decoration: underline;
-      }
-
-      /* Pagination */
-      .pagination {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        margin-top: 1.5rem;
-      }
-
-      .page-btn {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text-primary);
-        cursor: pointer;
-        transition: var(--transition);
-      }
-      .page-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      .page-btn:not(:disabled):hover {
-        border-color: var(--text-muted);
-      }
-
-      /* AI Results Box */
-      .ai-results-card {
-        background-color: var(--bg-card);
-        border: 1px solid rgba(130, 80, 223, 0.3);
-        border-radius: 1rem;
-        padding: 1.5rem;
-        box-shadow: var(--shadow);
-        margin-bottom: 2rem;
-      }
-
-      .ai-results-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .ai-results-title-group {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .ai-icon-badge {
-        width: 40px;
-        height: 40px;
-        border-radius: 0.75rem;
-        background-color: rgba(130, 80, 223, 0.1);
-        color: var(--purple-accent);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-      }
-
-      /* Modal */
-      .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        z-index: 100;
-        background-color: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-      }
-
-      .modal-card {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 1rem;
-        max-width: 450px;
-        width: 100%;
-        padding: 1.5rem;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      .modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .modal-header h3 {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 1.1rem;
-        font-weight: 700;
-      }
-
-      .modal-close {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        font-size: 1.25rem;
-        cursor: pointer;
-      }
-      .modal-close:hover {
-        color: var(--text-primary);
-      }
-
-      .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.375rem;
-      }
-
-      .form-group label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-
-      .form-input {
-        width: 100%;
-        padding: 0.625rem 0.875rem;
-        border-radius: 0.625rem;
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        font-size: 0.9rem;
-        color: var(--text-primary);
-        outline: none;
-      }
-      .form-input:focus {
-        border-color: var(--blue-accent);
-        box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.2);
-      }
-
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.5rem;
-        padding-top: 0.5rem;
-      }
-
-      .btn-secondary {
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        color: var(--text-primary);
-        padding: 0.5rem 1rem;
-        border-radius: 0.625rem;
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-      }
-
-      .btn-primary {
-        background-color: var(--blue-accent);
-        border: none;
-        color: #ffffff;
-        padding: 0.5rem 1rem;
-        border-radius: 0.625rem;
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-      }
-
-      /* Footer */
-      footer {
-        margin-top: auto;
-        border-top: 1px solid var(--border-color);
-        padding: 1.5rem 0;
-        text-align: center;
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-      }
-
-      .footer-flex {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-        display: flex;
-        flex-direction: column;
-        sm-flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .footer-links {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .footer-links button,
-      .footer-links a {
-        background: none;
-        border: none;
-        color: var(--text-secondary);
-        cursor: pointer;
-        text-decoration: none;
-      }
-      .footer-links button:hover,
-      .footer-links a:hover {
-        text-decoration: underline;
-      }
-
-      /* Utility classes */
-      .hidden {
-        display: none !important;
-      }
-      .text-purple {
-        color: var(--purple-accent);
-      }
-      /* GitHub Explorer visual refresh */
-      html {
-        color-scheme: light;
-        scroll-behavior: smooth;
-      }
-
-      html.dark {
-        color-scheme: dark;
-      }
-
-      body {
-        position: relative;
-        font-family: 'DM Sans', sans-serif;
-        background-image: repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 39px,
-          rgba(48, 77, 57, 0.035) 40px
-        );
-      }
-
-      h1,
-      h2,
-      h3,
-      .logo-box span {
-        font-family: 'Space Grotesk', sans-serif;
-      }
-
-      button,
-      input,
-      select {
-        font: inherit;
-      }
-
-      button:focus-visible,
-      a:focus-visible,
-      input:focus-visible,
-      select:focus-visible,
-      .logo-box:focus-visible {
-        outline: 3px solid rgba(39, 104, 78, 0.35);
-        outline-offset: 3px;
-      }
-
-      header {
-        border-color: var(--border-color);
-        background-color: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
-      }
-
-      .container,
-      main {
-        max-width: 1160px;
-      }
-
-      .header-inner {
-        height: 4.5rem;
-      }
-
-      .logo-box {
-        gap: 0.6rem;
-      }
-
-      .logo-box i {
-        font-size: 1.55rem;
-        color: var(--accent);
-      }
-
-      .logo-box span {
-        font-size: 1.05rem;
-        letter-spacing: 0;
-      }
-
-      .btn-icon {
-        min-height: 2.5rem;
-        border-radius: 6px;
-        background: transparent;
-        padding: 0.45rem 0.75rem;
-      }
-
-      .btn-icon:hover,
-      .btn-secondary:hover,
-      .repo-select:hover,
-      .repo-search-input:hover {
-        background-color: var(--bg-primary);
-      }
-
-      main {
-        padding-top: 4rem;
-        padding-bottom: 4rem;
-      }
-
-      .search-section {
-        max-width: 820px;
-        margin: 0 auto 3.5rem;
-        text-align: left;
-        animation: rise-in 0.55s ease both;
-      }
-
-      .search-section h1 {
-        max-width: 660px;
-        font-size: 3.4rem;
-        line-height: 1.06;
-        letter-spacing: 0;
-        margin-bottom: 0.75rem;
-      }
-
-      .search-section h1::before {
-        content: 'THE OPEN-SOURCE DIRECTORY';
-        display: block;
-        margin-bottom: 1rem;
-        color: var(--accent);
-        font: 700 0.68rem 'DM Sans', sans-serif;
-        letter-spacing: 0.12em;
-      }
-
-      .search-section p {
-        max-width: 570px;
-        color: var(--text-secondary);
-        line-height: 1.65;
-      }
-
-      .mode-selector {
-        justify-content: flex-start;
-        gap: 0.25rem;
-        width: fit-content;
-        padding: 0.25rem;
-        margin: 0 0 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 7px;
-        background: var(--bg-secondary);
-      }
-
-      .mode-btn {
-        min-height: 2.3rem;
-        padding: 0.45rem 0.8rem;
-        border: 0;
-        border-radius: 4px;
-        background: transparent;
-        color: var(--text-secondary);
-        font-size: 0.8rem;
-      }
-
-      .mode-btn.active-user,
-      .mode-btn.active-ai {
-        color: var(--bg-secondary);
-        background: var(--accent);
-      }
-
-      .mode-btn.active-ai {
-        background: var(--purple-accent);
-      }
-
-      .mode-btn.active-user i,
-      .mode-btn.active-ai i {
-        color: currentColor;
-      }
-
-      .search-bar-wrapper {
-        min-height: 3.65rem;
-        border-radius: 7px;
-        box-shadow: 0 8px 24px rgba(38, 55, 43, 0.08);
-      }
-
-      .search-bar-wrapper:focus-within {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(39, 104, 78, 0.14);
-      }
-
-      .search-input {
-        min-width: 0;
-        font-size: 0.95rem;
-      }
-
-      .search-btn,
-      .ai-search-btn {
-        min-height: 2.55rem;
-        margin: 0.4rem;
-        border-radius: 5px;
-        background: var(--primary-btn);
-      }
-
-      .ai-search-btn {
-        background: var(--purple-accent);
-      }
-
-      .ai-form-container {
-        border-color: color-mix(in srgb, var(--purple-accent) 35%, var(--border-color));
-        border-radius: 7px;
-        background: color-mix(in srgb, var(--purple-accent) 7%, var(--bg-secondary));
-        box-shadow: none;
-      }
-
-      .ai-chip-btn {
-        border-radius: 4px;
-      }
-
-      .search-meta-bar {
-        margin-top: 1rem;
-      }
-
-      .loading-state {
-        min-height: 240px;
-      }
-
-      .spinner {
-        border-top-color: var(--accent);
-      }
-
-      .profile-card,
-      .ai-results-card {
-        border-radius: 8px;
-        box-shadow: var(--shadow);
-        animation: rise-in 0.45s ease both;
-      }
-
-      .profile-card {
-        padding: 1.75rem;
-      }
-
-      .profile-avatar {
-        border-radius: 8px;
-        border-color: var(--border-color);
-      }
-
-      .profile-details h2 {
-        font-size: 1.85rem;
-        letter-spacing: 0;
-      }
-
-      .profile-meta-tags {
-        gap: 0.75rem 1.1rem;
-      }
-
-      .btn-github-external {
-        min-height: 2.65rem;
-        border-radius: 5px;
-        background: var(--accent);
-        color: #fff;
-      }
-
-      .stats-grid {
-        gap: 0;
-      }
-
-      .stat-item {
-        border-radius: 0;
-        border-right: 1px solid var(--border-color);
-        background: transparent;
-      }
-
-      .stat-item:last-child {
-        border-right: 0;
-      }
-
-      .stat-item:hover {
-        background: color-mix(in srgb, var(--accent) 7%, transparent);
-      }
-
-      .stat-title {
-        letter-spacing: 0.1em;
-      }
-
-      .stat-value {
-        font-family: 'Space Grotesk', sans-serif;
-      }
-
-      .tabs-nav {
-        gap: 0.25rem;
-        margin-bottom: 1rem;
-      }
-
-      .tab-btn {
-        min-height: 3rem;
-        border-bottom-width: 2px;
-      }
-
-      .tab-btn.active {
-        border-bottom-color: var(--accent);
-        color: var(--accent);
-      }
-
-      .tab-btn.active .tab-badge {
-        color: var(--accent);
-        background: color-mix(in srgb, var(--accent) 12%, transparent);
-      }
-
-      .repo-toolbar {
-        border-radius: 7px;
-        box-shadow: none;
-      }
-
-      .repo-search-input,
-      .repo-select {
-        border-radius: 5px;
-      }
-
-      .repo-card,
-      .user-card {
-        border-radius: 7px;
-        box-shadow: none;
-        animation: rise-in 0.35s ease both;
-      }
-
-      .repo-card {
-        border-top: 2px solid color-mix(in srgb, var(--accent) 55%, var(--border-color));
-      }
-
-      .repo-card:hover,
-      .user-card:hover {
-        border-color: var(--accent);
-        transform: translateY(-2px);
-      }
-
-      .repo-card-title a,
-      .profile-username-link,
-      .user-card-info a {
-        color: var(--accent);
-      }
-
-      .repo-badge,
-      .tab-badge {
-        border-radius: 4px;
-      }
-
-      .user-card img {
-        border-radius: 6px;
-      }
-
-      .page-btn,
-      .btn-secondary,
-      .btn-primary,
-      .error-btn {
-        min-height: 2.4rem;
-        border-radius: 5px;
-      }
-
-      .btn-primary {
-        background: var(--accent);
-      }
-
-      .error-card {
-        border-radius: 8px;
-      }
-
-      .modal-card {
-        border-radius: 8px;
-      }
-
-      footer {
-        background: var(--bg-secondary);
-      }
-
-      .footer-flex {
-        flex-direction: row;
-      }
-
-      @keyframes rise-in {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @media (max-width: 640px) {
-        .header-inner {
-          height: 4rem;
-        }
-
-        .header-actions {
-          gap: 0.4rem;
-        }
-
-        .header-actions .btn-icon {
-          padding: 0.45rem 0.55rem;
-        }
-
-        .header-actions .btn-icon span:not(.status-dot) {
-          display: none;
-        }
-
-        main {
-          padding: 2.75rem 1rem 3rem;
-        }
-
-        .search-section {
-          margin-bottom: 2.5rem;
-        }
-
-        .search-section h1 {
-          font-size: 2.4rem;
-        }
-
-        .mode-selector {
-          width: 100%;
-        }
-
-        .mode-btn {
-          flex: 1;
-          padding-inline: 0.4rem;
-          font-size: 0.72rem;
-        }
-
-        .mode-btn i {
-          display: none;
-        }
-
-        .search-bar-wrapper {
-          flex-wrap: wrap;
-        }
-
-        .search-input {
-          padding-inline: 0.65rem;
-          font-size: 0.85rem;
-        }
-
-        .search-btn,
-        .ai-search-btn {
-          flex: 0 0 auto;
-          padding-inline: 0.85rem;
-        }
-
-        .search-meta-bar {
-          align-items: flex-start;
-          gap: 0.65rem;
-          flex-direction: column;
-        }
-
-        .profile-card {
-          padding: 1.25rem;
-        }
-
-        .profile-header-flex {
-          align-items: stretch;
-        }
-
-        .profile-header-flex > div:last-child {
-          text-align: center;
-        }
-
-        .stats-grid {
-          gap: 0;
-        }
-
-        .stat-item {
-          padding: 0.8rem 0.25rem;
-        }
-
-        .stat-value {
-          font-size: 1.15rem;
-        }
-
-        .tab-btn {
-          padding-inline: 0.65rem;
-          font-size: 0.8rem;
-        }
-
-        .footer-flex {
-          flex-direction: column;
-          text-align: center;
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          scroll-behavior: auto !important;
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-        }
-      }
-    </style>
-  </head>
-    <!-- Header -->
-    <header>
-      <div class="container header-inner">
-        <div class="logo-box" onclick="resetApp()">
-          <i class="fa-brands fa-github"></i>
-          <span>GitHub Explorer</span>
-        </div>
-
-        <div class="header-actions">
-          <button
-            onclick="toggleTokenModal()"
-            id="tokenIndicator"
-            class="btn-icon"
-          >
-            <i class="fa-solid fa-key" style="color: #f59e0b"></i>
-            <span>API Token</span>
-            <span id="tokenStatusDot" class="status-dot red"></span>
-          </button>
-
-          <button
-            onclick="toggleTheme()"
-            class="btn-icon"
-            aria-label="Toggle Theme"
-          >
-            <i id="themeIcon" class="fa-solid fa-moon"></i>
-          </button>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Explorer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4f3ec;
+      --surface: #fffefa;
+      --surface-2: #faf9f3;
+      --border: #dcdfd4;
+      --text: #17231c;
+      --text-2: #5d6b62;
+      --text-3: #8a968d;
+      --accent: #27684e;
+      --accent-hover: #1f5540;
+      --accent-soft: rgba(39, 104, 78, 0.1);
+      --ai: #b85f3c;
+      --ai-soft: rgba(184, 95, 60, 0.1);
+      --danger: #a83e2e;
+      --danger-soft: #f9e9e4;
+      --shadow: 0 10px 30px rgba(30, 50, 38, 0.07);
+      --radius: 10px;
+      --display: 'Space Grotesk', sans-serif;
+    }
+    html.dark {
+      color-scheme: dark;
+      --bg: #0f1713;
+      --surface: #16211b;
+      --surface-2: #121c16;
+      --border: #2c3d33;
+      --text: #edf2ea;
+      --text-2: #a9b8ad;
+      --text-3: #78897d;
+      --accent: #8fc69e;
+      --accent-hover: #a7d9b4;
+      --accent-soft: rgba(143, 198, 158, 0.12);
+      --ai: #e49a74;
+      --ai-soft: rgba(228, 154, 116, 0.12);
+      --danger: #f08f78;
+      --danger-soft: rgba(168, 62, 46, 0.18);
+      --shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+    }
+    html { color-scheme: light; scroll-behavior: smooth; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg);
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(48, 77, 57, 0.035) 40px);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    h1, h2, h3, h4, .logo span, .stat-value { font-family: var(--display); }
+    button, input, select { font: inherit; color: inherit; }
+    a { color: var(--accent); }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid var(--accent-soft); outline-offset: 2px;
+    }
+    .hidden { display: none !important; }
+    .container { width: 100%; max-width: 1160px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      background: color-mix(in srgb, var(--surface-2) 92%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner { height: 4.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .logo { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font-weight: 700; font-size: 1.05rem; }
+    .logo i { font-size: 1.5rem; color: var(--accent); }
+    .nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.9rem; }
+    .nav a { color: var(--text-2); text-decoration: none; }
+    .nav a:hover { color: var(--text); }
+    .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .btn-icon {
+      display: flex; align-items: center; gap: 0.5rem;
+      min-height: 2.5rem; padding: 0.45rem 0.75rem;
+      border-radius: 6px; border: 1px solid var(--border);
+      background: transparent; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+      transition: var(--transition, all 0.2s);
+    }
+    .btn-icon:hover { background: var(--surface); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .status-dot.red { background: #f85149; }
+    .status-dot.green { background: #2ea043; }
+
+    /* Hero + search */
+    main { flex-grow: 1; width: 100%; padding: 4rem 0 3rem; }
+    .hero { max-width: 820px; margin: 0 auto 3.5rem; animation: rise 0.55s ease both; }
+    .eyebrow { color: var(--accent); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.06; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 0.75rem; max-width: 660px; }
+    .hero > p { color: var(--text-2); max-width: 570px; margin-bottom: 2rem; }
+
+    .segmented {
+      display: inline-flex; gap: 0.25rem; padding: 0.25rem; margin-bottom: 0.9rem;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2);
+    }
+    .seg-btn {
+      min-height: 2.2rem; padding: 0.4rem 0.85rem; border: 0; border-radius: 6px;
+      background: transparent; color: var(--text-2); font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    }
+    .seg-btn.active { background: var(--accent); color: var(--surface-2); }
+    .seg-btn.active.ai { background: var(--ai); }
+    .seg-btn i { margin-right: 0.35rem; }
+
+    .search-bar {
+      display: flex; align-items: center; min-height: 3.6rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow);
+    }
+    .search-bar:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .search-bar > i { padding: 0 0 0 1rem; color: var(--text-3); }
+    .search-bar input { flex: 1; min-width: 0; padding: 0.9rem 0.85rem; background: transparent; border: 0; outline: none; font-size: 0.95rem; }
+    .search-bar input::placeholder { color: var(--text-3); }
+    .submit-btn {
+      margin: 0.4rem; min-height: 2.5rem; padding: 0 1.1rem; border: 0; border-radius: 6px;
+      background: var(--accent); color: var(--surface-2); font-weight: 600; font-size: 0.9rem; cursor: pointer;
+    }
+    .submit-btn:hover { background: var(--accent-hover); }
+    .submit-btn.ai { background: var(--ai); }
+
+    .ai-panel {
+      margin-top: 0.75rem; padding: 1rem; border-radius: 8px;
+      border: 1px solid color-mix(in srgb, var(--ai) 35%, var(--border));
+      background: var(--ai-soft);
+    }
+    .ai-panel .hint { color: var(--ai); font-size: 0.75rem; font-weight: 600; margin-bottom: 0.6rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 0.75rem; color: var(--text-2); margin-top: 0.6rem; }
+    .chip {
+      padding: 0.3rem 0.55rem; border-radius: 5px; border: 1px solid var(--border);
+      background: var(--surface); cursor: pointer; font-size: 0.75rem;
+    }
+    .chip:hover { border-color: var(--ai); color: var(--ai); }
+
+    .meta-bar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; font-size: 0.8rem; color: var(--text-2); }
+    .meta-bar button { background: none; border: 0; color: var(--accent); text-decoration: underline; cursor: pointer; margin-left: 0.25rem; }
+
+    /* Loading / error */
+    .loading { display: flex; flex-direction: column; align-items: center; padding: 4rem 0; color: var(--text-2); }
+    .spinner {
+      width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-card {
+      max-width: 500px; margin: 2.5rem auto; padding: 2rem; text-align: center;
+      background: var(--danger-soft); border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+      border-radius: var(--radius); color: var(--danger);
+    }
+    .error-card i { font-size: 2.2rem; margin-bottom: 0.6rem; }
+    .error-card h3 { font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .error-card p { font-size: 0.875rem; margin-bottom: 1.1rem; }
+    .error-card button { background: var(--danger); color: #fff; border: 0; padding: 0.5rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+    /* Profile */
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); animation: rise 0.45s ease both;
+    }
+    .profile-card { padding: 1.75rem; margin-bottom: 2rem; }
+    .profile-top { display: flex; flex-direction: column; gap: 1.5rem; }
+    @media (min-width: 768px) { .profile-top { flex-direction: row; justify-content: space-between; align-items: flex-start; } }
+    .profile-info { display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center; }
+    @media (min-width: 640px) { .profile-info { flex-direction: row; align-items: flex-start; text-align: left; } }
+    .avatar { width: 110px; height: 110px; border-radius: 8px; border: 1px solid var(--border); object-fit: cover; background: var(--surface-2); }
+    .profile-info h2 { font-size: 1.85rem; letter-spacing: -0.01em; }
+    .profile-info .handle { color: var(--accent); font-weight: 500; text-decoration: none; }
+    .profile-info .handle:hover { text-decoration: underline; }
+    .bio { color: var(--text-2); margin-top: 0.5rem; max-width: 550px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; justify-content: center; margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-2); }
+    @media (min-width: 640px) { .meta { justify-content: flex-start; } }
+    .meta span { display: flex; align-items: center; gap: 0.35rem; }
+    .meta a { color: var(--accent); text-decoration: none; }
+    .btn-github {
+      display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.6rem; padding: 0.6rem 1.1rem;
+      background: var(--accent); color: var(--surface-2); text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.85rem;
+    }
+    .btn-github:hover { background: var(--accent-hover); }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--border); text-align: center; }
+    .stat { padding: 0.8rem 0.25rem; border-right: 1px solid var(--border); cursor: pointer; border-radius: 6px; transition: background 0.2s; }
+    .stat:last-child { border-right: 0; }
+    .stat:hover { background: var(--accent-soft); }
+    .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-2); font-weight: 700; }
+    .stat-value { font-size: 1.35rem; font-weight: 700; }
+
+    .tabs { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; overflow-x: auto; }
+    .tab {
+      display: flex; align-items: center; gap: 0.5rem; min-height: 2.9rem; padding: 0.7rem 1rem;
+      background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px;
+      color: var(--text-2); font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap;
+    }
+    .tab.active { border-bottom-color: var(--accent); color: var(--accent); }
+    .badge { padding: 0.1rem 0.45rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; background: var(--surface-2); color: var(--text-2); }
+    .tab.active .badge { background: var(--accent-soft); color: var(--accent); }
+
+    .toolbar {
+      display: flex; flex-direction: column; gap: 0.75rem; padding: 0.9rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem;
+    }
+    @media (min-width: 640px) { .toolbar { flex-direction: row; justify-content: space-between; align-items: center; } }
+    .filter-input, .sort-select {
+      padding: 0.5rem 0.75rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px;
+      font-size: 0.85rem; outline: none;
+    }
+    .filter-input { width: 100%; max-width: 300px; }
+    .sort-wrap { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-2); }
+
+    .grid-2, .grid-3 { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 768px) { .grid-2 { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+    .repo-card {
+      display: flex; flex-direction: column; justify-content: space-between; padding: 1.2rem;
+      border-top: 2px solid color-mix(in srgb, var(--accent) 55%, var(--border)); box-shadow: none;
+    }
+    .repo-card:hover, .user-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .repo-card, .user-card { transition: transform 0.2s, border-color 0.2s; }
+    .repo-title { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.45rem; }
+    .repo-title a { font-weight: 700; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; gap: 0.45rem; align-items: center; }
+    .repo-title a:hover { text-decoration: underline; }
+    .pill { font-size: 0.7rem; padding: 0.1rem 0.45rem; border-radius: 4px; border: 1px solid var(--border); color: var(--text-2); white-space: nowrap; }
+    .repo-desc { font-size: 0.85rem; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .repo-foot {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+      margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-2);
+    }
+    .repo-foot .left { display: flex; gap: 1rem; align-items: center; }
+    .repo-foot .item { display: flex; gap: 0.3rem; align-items: center; }
+    .lang-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    .user-card { display: flex; align-items: center; gap: 1rem; padding: 1rem; cursor: pointer; box-shadow: none; }
+    .user-card img { width: 48px; height: 48px; border-radius: 6px; border: 1px solid var(--border); object-fit: cover; }
+    .user-card h4 { font-size: 0.95rem; }
+    .user-card a { font-size: 0.75rem; text-decoration: none; }
+    .user-card a:hover { text-decoration: underline; }
+    .empty { grid-column: 1 / -1; padding: 3rem 1rem; text-align: center; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .empty i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-2); }
+    .page-btn { padding: 0.45rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 500; }
+    .page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .ai-results { padding: 1.5rem; margin-bottom: 2rem; border-color: color-mix(in srgb, var(--ai) 35%, var(--border)); }
+    .ai-results-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-bottom: 0.9rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .ai-results-header h3 { font-size: 1rem; }
+    .ai-results-header p { font-size: 0.75rem; color: var(--text-2); }
+    .ai-badge { width: 38px; height: 38px; border-radius: 8px; background: var(--ai-soft); color: var(--ai); display: flex; align-items: center; justify-content: center; }
+    .ghost-btn { min-height: 2.3rem; padding: 0.4rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-2); font-size: 0.8rem; cursor: pointer; }
+    .ghost-btn:hover { border-color: var(--text-3); }
+
+    /* Pricing */
+    .pricing { margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); scroll-margin-top: 5rem; }
+    .pricing-head { text-align: center; max-width: 640px; margin: 0 auto 2rem; }
+    .pricing-head .eyebrow { margin-bottom: 0.6rem; }
+    .pricing-head h2 { font-size: clamp(1.7rem, 4vw, 2.3rem); letter-spacing: -0.01em; margin-bottom: 0.5rem; }
+    .pricing-head p { color: var(--text-2); }
+    .billing-toggle { display: inline-flex; margin: 1.5rem auto 0; }
+    .billing-toggle .seg-btn { min-width: 7.5rem; }
+    .save-tag { display: inline-block; margin-left: 0.35rem; padding: 0.1rem 0.4rem; border-radius: 4px; background: var(--accent-soft); color: var(--accent); font-size: 0.65rem; font-weight: 700; }
+    .seg-btn.active .save-tag { background: rgba(255, 255, 255, 0.2); color: inherit; }
+
+    .price-grid { display: grid; gap: 1.25rem; grid-template-columns: 1fr; align-items: stretch; }
+    @media (min-width: 900px) { .price-grid { grid-template-columns: repeat(3, 1fr); } }
+    .price-card { position: relative; display: flex; flex-direction: column; padding: 1.75rem; box-shadow: none; animation-delay: 0.05s; }
+    .price-card.featured { border: 2px solid var(--accent); box-shadow: var(--shadow); }
+    .popular {
+      position: absolute; top: -0.7rem; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: var(--surface-2); font-size: 0.7rem; font-weight: 700;
+      padding: 0.25rem 0.75rem; border-radius: 999px; white-space: nowrap;
+    }
+    .plan-name { font-size: 1.05rem; font-weight: 700; }
+    .plan-desc { color: var(--text-2); font-size: 0.85rem; margin-top: 0.25rem; min-height: 2.6rem; }
+    .price { display: flex; align-items: baseline; gap: 0.3rem; margin: 1.1rem 0 0.3rem; }
+    .price strong { font-family: var(--display); font-size: 2.6rem; font-weight: 700; line-height: 1; }
+    .price span { color: var(--text-2); font-size: 0.9rem; }
+    .billed { font-size: 0.75rem; color: var(--text-3); min-height: 1.1rem; }
+    .features { list-style: none; margin: 1.25rem 0 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.9rem; flex-grow: 1; }
+    .features li { display: flex; gap: 0.6rem; align-items: flex-start; }
+    .features li i { color: var(--accent); margin-top: 0.2rem; font-size: 0.8rem; }
+    .features li.off { color: var(--text-3); }
+    .features li.off i { color: var(--text-3); }
+    .plan-btn {
+      width: 100%; min-height: 2.7rem; border-radius: 6px; border: 1px solid var(--accent);
+      background: transparent; color: var(--accent); font-weight: 600; font-size: 0.9rem; cursor: pointer;
+    }
+    .plan-btn:hover { background: var(--accent-soft); }
+    .plan-btn.solid { background: var(--accent); color: var(--surface-2); }
+    .plan-btn.solid:hover { background: var(--accent-hover); }
+    .pricing-note { text-align: center; margin-top: 1.25rem; font-size: 0.8rem; color: var(--text-3); }
+
+    footer { border-top: 1px solid var(--border); background: var(--surface-2); padding: 1.5rem 0; font-size: 0.8rem; color: var(--text-2); }
+    .footer-flex { display: flex; flex-direction: column; gap: 0.75rem; align-items: center; text-align: center; }
+    @media (min-width: 768px) { .footer-flex { flex-direction: row; justify-content: space-between; text-align: left; } }
+    .footer-links { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; justify-content: center; }
+    .footer-links button, .footer-links a { background: none; border: 0; color: var(--text-2); cursor: pointer; text-decoration: none; }
+    .footer-links button:hover, .footer-links a:hover { text-decoration: underline; }
+
+    /* Token modal */
+    .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .modal { width: 100%; max-width: 440px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; }
+    .modal-head h3 { display: flex; gap: 0.5rem; align-items: center; font-size: 1.05rem; }
+    .modal p { font-size: 0.8rem; color: var(--text-2); }
+    .modal label { font-size: 0.75rem; font-weight: 600; display: block; margin-bottom: 0.35rem; }
+    .modal input { width: 100%; padding: 0.6rem 0.8rem; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border); outline: none; }
+    .modal input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+    .btn-secondary { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-2); cursor: pointer; font-size: 0.8rem; font-weight: 500; }
+    .btn-primary { padding: 0.5rem 1rem; border-radius: 6px; border: 0; background: var(--accent); color: var(--surface-2); cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+    .modal-close { background: none; border: 0; color: var(--text-3); font-size: 1.2rem; cursor: pointer; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @media (max-width: 640px) {
+      .nav a.hide-sm { display: none; }
+      .header-actions .btn-icon span:not(.status-dot) { display: none; }
+      main { padding: 2.5rem 0 2.5rem; }
+      .hero { margin-bottom: 2.5rem; }
+      .stat-value { font-size: 1.15rem; }
+      .profile-card { padding: 1.25rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container header-inner">
+      <div class="logo" onclick="resetApp()" role="button" tabindex="0">
+        <i class="fa-brands fa-github"></i>
+        <span>GitHub Explorer</span>
       </div>
-    </header>
-
-    <!-- Main Content -->
-    <main>
-      <!-- Search Section -->
-      <div class="search-section">
-        <h1>Explore GitHub Profiles</h1>
-        <p>
-          Search developers, inspect public repositories, followers, and metrics
-          instantly.
-        </p>
-
-        <!-- Mode Selector Tabs -->
-        <div class="mode-selector">
-          <button
-            onclick="switchSearchMode('username')"
-            id="modeBtnUsername"
-            class="mode-btn active-user"
-          >
-            <i class="fa-solid fa-user" style="margin-right: 0.35rem"></i
-            >Username Search
-          </button>
-          <button
-            onclick="switchSearchMode('ai')"
-            id="modeBtnAI"
-            class="mode-btn"
-          >
-            <i
-              class="fa-solid fa-wand-magic-sparkles text-purple"
-              style="margin-right: 0.35rem"
-            ></i
-            >AI Natural Language Search
-          </button>
-        </div>
-
-        <!-- Username Search Form -->
-        <form id="searchForm" onsubmit="handleSearchSubmit(event)">
-          <div class="search-bar-wrapper">
-            <div class="search-icon">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </div>
-            <input
-              type="text"
-              id="searchInput"
-              placeholder="Search GitHub username (e.g., torvalds, octocat)..."
-              class="search-input"
-              autocomplete="off"
-            />
-            <button type="submit" class="search-btn">Search</button>
-          </div>
-        </form>
-
-        <!-- AI Search Form (Hidden by default) -->
-        <form
-          id="aiSearchForm"
-          onsubmit="handleAISearchSubmit(event)"
-          class="hidden"
-        >
-          <div class="ai-form-container">
-            <div class="ai-form-header">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-              <span
-                >AI Assistant Prompt: Describe what kind of developer or tech
-                stack you are looking for</span
-              >
-            </div>
-            <div class="search-bar-wrapper">
-              <div class="search-icon text-purple">
-                <i class="fa-solid fa-robot"></i>
-              </div>
-              <input
-                type="text"
-                id="aiInput"
-                placeholder="e.g., 'React developer in San Francisco with over 1000 followers'"
-                class="search-input"
-                autocomplete="off"
-              />
-              <button type="submit" class="ai-search-btn">AI Search</button>
-            </div>
-            <div class="ai-chips">
-              <span>Try prompts:</span>
-              <button
-                type="button"
-                class="ai-chip-btn"
-                onclick="setAIPrompt('Top Linux kernel developer')"
-              >
-                Top Linux kernel developer
-              </button>
-              <button
-                type="button"
-                class="ai-chip-btn"
-                onclick="setAIPrompt('Popular JavaScript open source maintainer')"
-              >
-                Popular JavaScript maintainer
-              </button>
-            </div>
-          </div>
-        </form>
-
-        <!-- Rate Limit Bar & Quick Suggestions -->
-        <div class="search-meta-bar">
-          <div
-            id="rateLimitDisplay"
-            style="display: flex; align-items: center; gap: 0.375rem"
-          >
-            <i class="fa-solid fa-gauge-high"></i>
-            <span id="rateLimitText">Rate limit: Checking...</span>
-          </div>
-          <div class="quick-suggestions">
-            <span>Popular:</span>
-            <button onclick="searchUserDirect('torvalds')">torvalds</button>
-            <button onclick="searchUserDirect('gaearon')">gaearon</button>
-            <button onclick="searchUserDirect('yyx990803')">yyx990803</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Loading Spinner -->
-      <div id="loadingState" class="loading-state hidden">
-        <div class="spinner"></div>
-        <p id="loadingText" class="loading-text">
-          Fetching GitHub profile data...
-        </p>
-      </div>
-
-      <!-- AI Discovery Results Container -->
-      <div id="aiResultsContainer" class="ai-results-card hidden">
-        <div class="ai-results-header">
-          <div class="ai-results-title-group">
-            <div class="ai-icon-badge">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-            </div>
-            <div>
-              <h3 style="font-weight: 700; font-size: 1rem">
-                AI Discovery Results
-              </h3>
-              <p
-                id="aiQuerySummary"
-                style="font-size: 0.75rem; color: var(--text-secondary)"
-              >
-                Parsed from natural language query
-              </p>
-            </div>
-          </div>
-          <button
-            onclick="closeAIResults()"
-            class="btn-secondary"
-            style="font-size: 0.75rem"
-          >
-            Back to Profile
-          </button>
-        </div>
-        <div id="aiDevGrid" class="grid-3">
-          <!-- AI suggested devs injected here -->
-        </div>
-      </div>
-
-      <!-- Error Message Card -->
-      <div id="errorState" class="error-card hidden">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <h3 id="errorTitle">User Not Found</h3>
-        <p id="errorDesc">
-          The GitHub user you searched for could not be found or API rate limit
-          exceeded.
-        </p>
-        <button onclick="hideError()" class="error-btn">Try Again</button>
-      </div>
-
-      <!-- Profile Container -->
-      <div id="profileContainer" class="hidden">
-        <!-- Profile Overview Card -->
-        <div class="profile-card">
-          <div class="profile-header-flex">
-            <div class="profile-user-info">
-              <img
-                id="profileAvatar"
-                src="https://placehold.co/120x120/161b22/c9d1d9?text=Avatar"
-                alt="Avatar"
-                class="profile-avatar"
-              />
-
-              <div class="profile-details">
-                <div
-                  style="display: flex; flex-direction: column; gap: 0.25rem"
-                >
-                  <h2 id="profileName">Developer Name</h2>
-                  <a
-                    id="profileUsername"
-                    href="#"
-                    target="_blank"
-                    class="profile-username-link"
-                    >@username</a
-                  >
-                </div>
-                <p id="profileBio" class="profile-bio">Bio goes here...</p>
-
-                <div class="profile-meta-tags">
-                  <span id="profileCompanyContainer" class="hidden">
-                    <i class="fa-solid fa-building"></i>
-                    <span id="profileCompany">Company</span>
-                  </span>
-                  <span id="profileLocationContainer" class="hidden">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <span id="profileLocation">Location</span>
-                  </span>
-                  <span id="profileBlogContainer" class="hidden">
-                    <i class="fa-solid fa-link"></i>
-                    <a
-                      id="profileBlog"
-                      href="#"
-                      target="_blank"
-                      style="color: var(--blue-accent); text-decoration: none"
-                      >Website</a
-                    >
-                  </span>
-                  <span>
-                    <i class="fa-solid fa-calendar-days"></i>
-                    <span id="profileJoined">Joined date</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <a
-                id="profileGithubLink"
-                href="#"
-                target="_blank"
-                class="btn-github-external"
-              >
-                <i class="fa-brands fa-github" style="font-size: 1.1rem"></i>
-                <span>Open GitHub</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Stats Bar -->
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-title">Public Repos</div>
-              <div id="statRepos" class="stat-value">0</div>
-            </div>
-            <div class="stat-item" onclick="switchTab('followers')">
-              <div class="stat-title">Followers</div>
-              <div id="statFollowers" class="stat-value">0</div>
-            </div>
-            <div class="stat-item" onclick="switchTab('following')">
-              <div class="stat-title">Following</div>
-              <div id="statFollowing" class="stat-value">0</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Explore Tabs Navigation -->
-        <div class="tabs-nav">
-          <button
-            onclick="switchTab('repos')"
-            id="tabBtnRepos"
-            class="tab-btn active"
-          >
-            <i class="fa-solid fa-book-bookmark"></i>
-            <span>Repositories</span>
-            <span id="badgeRepos" class="tab-badge">0</span>
-          </button>
-          <button
-            onclick="switchTab('followers')"
-            id="tabBtnFollowers"
-            class="tab-btn"
-          >
-            <i class="fa-solid fa-users"></i>
-            <span>Followers</span>
-            <span id="badgeFollowers" class="tab-badge">0</span>
-          </button>
-          <button
-            onclick="switchTab('following')"
-            id="tabBtnFollowing"
-            class="tab-btn"
-          >
-            <i class="fa-solid fa-user-group"></i>
-            <span>Following</span>
-            <span id="badgeFollowing" class="tab-badge">0</span>
-          </button>
-        </div>
-
-        <!-- Tab Content Sections -->
-        <div id="tabContentContainer">
-          <!-- Repositories Section -->
-          <div id="sectionRepos">
-            <div class="repo-toolbar">
-              <div class="repo-search-box">
-                <i class="fa-solid fa-filter"></i>
-                <input
-                  type="text"
-                  id="repoSearchInput"
-                  oninput="filterRepositories()"
-                  placeholder="Find a repository..."
-                  class="repo-search-input"
-                />
-              </div>
-              <div class="repo-sort-wrapper">
-                <span>Sort by:</span>
-                <select
-                  id="repoSortSelect"
-                  onchange="sortRepositories()"
-                  class="repo-select"
-                >
-                  <option value="updated">Last Updated</option>
-                  <option value="stars">Most Stars</option>
-                  <option value="forks">Most Forks</option>
-                  <option value="name">Name</option>
-                </select>
-              </div>
-            </div>
-
-            <div id="reposGrid" class="grid-2">
-              <!-- Repos injected dynamically -->
-            </div>
-
-            <div id="reposPagination" class="pagination hidden">
-              <button
-                id="prevRepoPage"
-                onclick="changeRepoPage(-1)"
-                class="page-btn"
-              >
-                Previous
-              </button>
-              <span
-                id="repoPageInfo"
-                style="font-size: 0.8rem; color: var(--text-secondary)"
-                >Page 1 of 1</span
-              >
-              <button
-                id="nextRepoPage"
-                onclick="changeRepoPage(1)"
-                class="page-btn"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-
-          <!-- Followers Section -->
-          <div id="sectionFollowers" class="hidden">
-            <div id="followersGrid" class="grid-3">
-              <!-- Followers injected dynamically -->
-            </div>
-          </div>
-
-          <!-- Following Section -->
-          <div id="sectionFollowing" class="hidden">
-            <div id="followingGrid" class="grid-3">
-              <!-- Following injected dynamically -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- API Token Modal -->
-    <div id="tokenModal" class="modal-backdrop hidden">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3>
-            <i class="fa-solid fa-key" style="color: #f59e0b"></i>
-            <span>GitHub Personal Access Token</span>
-          </h3>
-          <button onclick="toggleTokenModal()" class="modal-close">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-
-        <p
-          style="
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-          "
-        >
-          By default, unauthenticated requests are limited to 60 requests per
-          hour. Adding a personal access token increases this limit to 5,000
-          requests per hour. Stored locally in your browser.
-        </p>
-
-        <div class="form-group">
-          <label>GitHub Token</label>
-          <input
-            type="password"
-            id="tokenInput"
-            placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-            class="form-input"
-          />
-        </div>
-
-        <div class="modal-actions">
-          <button onclick="clearToken()" class="btn-secondary">Remove</button>
-          <button onclick="saveToken()" class="btn-primary">Save Token</button>
-        </div>
+      <nav class="nav">
+        <a href="#pricing" class="hide-sm">Pricing</a>
+      </nav>
+      <div class="header-actions">
+        <button onclick="toggleTokenModal()" class="btn-icon" aria-label="API token">
+          <i class="fa-solid fa-key" style="color: #f59e0b"></i>
+          <span>API Token</span>
+          <span id="tokenStatusDot" class="status-dot red"></span>
+        </button>
+        <button onclick="toggleTheme()" class="btn-icon" aria-label="Toggle theme">
+          <i id="themeIcon" class="fa-solid fa-moon"></i>
+        </button>
       </div>
     </div>
+  </header>
 
-    <!-- Footer -->
-    <footer>
-      <div class="footer-flex">
-        <p>
-          GitHub Explorer Web Application &bull; Pure CSS & GitHub REST API
-          &bull; Developed By Joey Cadieux
-        </p>
-        <div class="footer-links">
-          <button onclick="toggleTokenModal()">API Rate Limits</button>
-          <span>&bull;</span>
-          <a href="vulnerability-report.html">Report a vulnerability</a>
-          <span>&bull;</span>
-          <a href="https://github.com" target="_blank">GitHub.com</a>
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow">The open-source directory</div>
+      <h1>Explore GitHub profiles</h1>
+      <p>Search developers, inspect public repositories, followers, and metrics instantly.</p>
+
+      <div class="segmented" role="tablist">
+        <button id="modeBtnUsername" class="seg-btn active" onclick="switchSearchMode('username')">
+          <i class="fa-solid fa-user"></i>Username
+        </button>
+        <button id="modeBtnAI" class="seg-btn ai" onclick="switchSearchMode('ai')">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>AI Natural Language
+        </button>
+      </div>
+
+      <form id="searchForm" class="search-bar" onsubmit="handleSearchSubmit(event)">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="searchInput" type="text" placeholder="Search a GitHub username, e.g. torvalds" autocomplete="off" />
+        <button type="submit" class="submit-btn">Search</button>
+      </form>
+
+      <form id="aiSearchForm" class="hidden" onsubmit="handleAISearchSubmit(event)">
+        <div class="ai-panel">
+          <div class="hint"><i class="fa-solid fa-robot"></i> Describe the kind of developer or stack you are looking for</div>
+          <div class="search-bar">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--ai)"></i>
+            <input id="aiInput" type="text" placeholder="e.g. React developer in San Francisco" autocomplete="off" />
+            <button type="submit" class="submit-btn ai">AI Search</button>
+          </div>
+          <div class="chips">
+            <span>Try:</span>
+            <button type="button" class="chip" onclick="setAIPrompt('Top Linux kernel developer')">Top Linux kernel developer</button>
+            <button type="button" class="chip" onclick="setAIPrompt('Popular JavaScript open source maintainer')">Popular JavaScript maintainer</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="meta-bar">
+        <div><i class="fa-solid fa-gauge-high"></i> <span id="rateLimitText">Rate limit: checking...</span></div>
+        <div>
+          <span>Popular:</span>
+          <button onclick="searchUserDirect('torvalds')">torvalds</button>
+          <button onclick="searchUserDirect('gaearon')">gaearon</button>
+          <button onclick="searchUserDirect('yyx990803')">yyx990803</button>
         </div>
       </div>
-    </footer>
+    </section>
 
-    <!-- JavaScript Application Logic -->
-    <script>
-      let currentUsername = '';
-      let currentUserData = null;
-      let allRepos = [];
-      let filteredRepos = [];
-      let currentRepoPage = 1;
-      const reposPerPage = 6;
-      let githubToken = localStorage.getItem('github_explorer_token') || '';
-      let searchMode = 'username';
+    <div id="loadingState" class="loading hidden">
+      <div class="spinner"></div>
+      <p id="loadingText">Fetching GitHub profile data...</p>
+    </div>
 
-      const langColors = {
-        JavaScript: '#f1e05a',
-        TypeScript: '#3178c6',
-        Python: '#3572A5',
-        HTML: '#e34c26',
-        CSS: '#563d7c',
-        Java: '#b07219',
-        'C++': '#f34b7d',
-        Ruby: '#701516',
-        Go: '#00ADD8',
-        Rust: '#dea584',
-        PHP: '#4F5D95',
-        'C#': '#178600',
-        Swift: '#ffac45',
-        Kotlin: '#A97BFF',
-        Dart: '#00B4AB',
-        Shell: '#89e051',
-      };
+    <div id="errorState" class="error-card hidden">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <h3 id="errorTitle">User not found</h3>
+      <p id="errorDesc"></p>
+      <button onclick="hideError()">Try again</button>
+    </div>
 
-      window.addEventListener('DOMContentLoaded', () => {
-        if (githubToken) {
-          document.getElementById('tokenInput').value = githubToken;
-          updateTokenIndicator(true);
+    <!-- AI results -->
+    <div id="aiResultsContainer" class="card ai-results hidden">
+      <div class="ai-results-header">
+        <div style="display: flex; gap: 0.75rem; align-items: center">
+          <div class="ai-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <div>
+            <h3>AI discovery results</h3>
+            <p id="aiQuerySummary"></p>
+          </div>
+        </div>
+        <button class="ghost-btn" onclick="closeAIResults()">Back to profile</button>
+      </div>
+      <div id="aiDevGrid" class="grid-3"></div>
+    </div>
+
+    <!-- Profile -->
+    <div id="profileContainer" class="hidden">
+      <div class="card profile-card">
+        <div class="profile-top">
+          <div class="profile-info">
+            <img id="profileAvatar" class="avatar" alt="Avatar" />
+            <div>
+              <h2 id="profileName"></h2>
+              <a id="profileUsername" class="handle" href="#" target="_blank"></a>
+              <p id="profileBio" class="bio"></p>
+              <div class="meta">
+                <span id="profileCompanyContainer" class="hidden"><i class="fa-solid fa-building"></i><span id="profileCompany"></span></span>
+                <span id="profileLocationContainer" class="hidden"><i class="fa-solid fa-location-dot"></i><span id="profileLocation"></span></span>
+                <span id="profileBlogContainer" class="hidden"><i class="fa-solid fa-link"></i><a id="profileBlog" href="#" target="_blank"></a></span>
+                <span><i class="fa-solid fa-calendar-days"></i><span id="profileJoined"></span></span>
+              </div>
+            </div>
+          </div>
+          <a id="profileGithubLink" class="btn-github" href="#" target="_blank">
+            <i class="fa-brands fa-github"></i>Open on GitHub
+          </a>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div class="stat-label">Public repos</div><div id="statRepos" class="stat-value">0</div></div>
+          <div class="stat" onclick="switchTab('followers')"><div class="stat-label">Followers</div><div id="statFollowers" class="stat-value">0</div></div>
+          <div class="stat" onclick="switchTab('following')"><div class="stat-label">Following</div><div id="statFollowing" class="stat-value">0</div></div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button id="tabBtnRepos" class="tab active" onclick="switchTab('repos')"><i class="fa-solid fa-book-bookmark"></i>Repositories <span id="badgeRepos" class="badge">0</span></button>
+        <button id="tabBtnFollowers" class="tab" onclick="switchTab('followers')"><i class="fa-solid fa-users"></i>Followers <span id="badgeFollowers" class="badge">0</span></button>
+        <button id="tabBtnFollowing" class="tab" onclick="switchTab('following')"><i class="fa-solid fa-user-group"></i>Following <span id="badgeFollowing" class="badge">0</span></button>
+      </div>
+
+      <div id="sectionRepos">
+        <div class="toolbar">
+          <div style="position: relative; width: 100%; max-width: 300px">
+            <i class="fa-solid fa-filter" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 0.75rem"></i>
+            <input id="repoSearchInput" class="filter-input" style="padding-left: 2.1rem; width: 100%" type="text" placeholder="Find a repository..." oninput="filterRepositories()" />
+          </div>
+          <div class="sort-wrap">
+            <span>Sort by</span>
+            <select id="repoSortSelect" class="sort-select" onchange="sortRepositories()">
+              <option value="updated">Last updated</option>
+              <option value="stars">Most stars</option>
+              <option value="forks">Most forks</option>
+              <option value="name">Name</option>
+            </select>
+          </div>
+        </div>
+        <div id="reposGrid" class="grid-2"></div>
+        <div id="reposPagination" class="pagination hidden">
+          <button id="prevRepoPage" class="page-btn" onclick="changeRepoPage(-1)">Previous</button>
+          <span id="repoPageInfo"></span>
+          <button id="nextRepoPage" class="page-btn" onclick="changeRepoPage(1)">Next</button>
+        </div>
+      </div>
+
+      <div id="sectionFollowers" class="hidden"><div id="followersGrid" class="grid-3"></div></div>
+      <div id="sectionFollowing" class="hidden"><div id="followingGrid" class="grid-3"></div></div>
+    </div>
+
+    <!-- Pricing -->
+    <section id="pricing" class="pricing">
+      <div class="pricing-head">
+        <div class="eyebrow">Pricing</div>
+        <h2>Simple plans that grow with you</h2>
+        <p>Start free and upgrade when you need higher API limits, team features, and priority support.</p>
+        <div class="segmented billing-toggle" role="tablist">
+          <button id="billMonthly" class="seg-btn active" onclick="setBilling('monthly')">Monthly</button>
+          <button id="billYearly" class="seg-btn" onclick="setBilling('yearly')">Yearly <span class="save-tag">SAVE 20%</span></button>
+        </div>
+      </div>
+
+      <div class="price-grid">
+        <article class="card price-card">
+          <h3 class="plan-name">Free</h3>
+          <p class="plan-desc">For exploring profiles and trying out the directory.</p>
+          <div class="price"><strong>$0</strong><span>forever</span></div>
+          <div class="billed">&nbsp;</div>
+          <ul class="features">
+            <li><i class="fa-solid fa-check"></i>60 API requests per hour</li>
+            <li><i class="fa-solid fa-check"></i>Profile, repo and follower views</li>
+            <li><i class="fa-solid fa-check"></i>Username search</li>
+            <li class="off"><i class="fa-solid fa-xmark"></i>AI natural language search</li>
+            <li class="off"><i class="fa-solid fa-xmark"></i>Saved searches and exports</li>
+          </ul>
+          <button class="plan-btn" onclick="choosePlan('Free')">Get started</button>
+        </article>
+
+        <article class="card price-card featured">
+          <span class="popular">MOST POPULAR</span>
+          <h3 class="plan-name">Pro</h3>
+          <p class="plan-desc">For developers who recruit, research, or scout talent.</p>
+          <div class="price"><strong id="proPrice">$9</strong><span id="proPeriod">/ month</span></div>
+          <div class="billed" id="proBilled">Billed monthly</div>
+          <ul class="features">
+            <li><i class="fa-solid fa-check"></i>5,000 API requests per hour</li>
+            <li><i class="fa-solid fa-check"></i>AI natural language search</li>
+            <li><i class="fa-solid fa-check"></i>Saved searches and watchlists</li>
+            <li><i class="fa-solid fa-check"></i>CSV export of repos and followers</li>
+            <li><i class="fa-solid fa-check"></i>Email support</li>
+          </ul>
+          <button class="plan-btn solid" onclick="choosePlan('Pro')">Start 14-day trial</button>
+        </article>
+
+        <article class="card price-card">
+          <h3 class="plan-name">Team</h3>
+          <p class="plan-desc">For teams running shared sourcing and research workflows.</p>
+          <div class="price"><strong id="teamPrice">$29</strong><span id="teamPeriod">/ month</span></div>
+          <div class="billed" id="teamBilled">Billed monthly, up to 10 seats</div>
+          <ul class="features">
+            <li><i class="fa-solid fa-check"></i>Everything in Pro</li>
+            <li><i class="fa-solid fa-check"></i>Up to 10 seats included</li>
+            <li><i class="fa-solid fa-check"></i>Shared lists and team notes</li>
+            <li><i class="fa-solid fa-check"></i>Usage analytics dashboard</li>
+            <li><i class="fa-solid fa-check"></i>Priority support, 1-business-day reply</li>
+          </ul>
+          <button class="plan-btn" onclick="choosePlan('Team')">Contact sales</button>
+        </article>
+      </div>
+      <p class="pricing-note">Prices in USD. Taxes calculated at checkout. Cancel anytime.</p>
+    </section>
+  </main>
+
+  <!-- Token modal -->
+  <div id="tokenModal" class="modal-backdrop hidden">
+    <div class="card modal">
+      <div class="modal-head">
+        <h3><i class="fa-solid fa-key" style="color: #f59e0b"></i>GitHub personal access token</h3>
+        <button class="modal-close" onclick="toggleTokenModal()" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p>Unauthenticated requests are limited to 60 per hour. A personal access token raises this to 5,000 per hour. It is stored only in your browser.</p>
+      <div>
+        <label for="tokenInput">GitHub token</label>
+        <input id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="clearToken()">Remove</button>
+        <button class="btn-primary" onclick="saveToken()">Save token</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container footer-flex">
+      <p>GitHub Explorer &bull; Pure CSS &amp; GitHub REST API &bull; Developed by Joey Cadieux</p>
+      <div class="footer-links">
+        <button onclick="toggleTokenModal()">API rate limits</button>
+        <span>&bull;</span>
+        <a href="vulnerability-report.html">Report a vulnerability</a>
+        <span>&bull;</span>
+        <a href="https://github.com" target="_blank" rel="noopener">GitHub.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let currentUserData = null;
+    let allRepos = [];
+    let filteredRepos = [];
+    let currentRepoPage = 1;
+    const reposPerPage = 6;
+    let githubToken = localStorage.getItem('github_explorer_token') || '';
+    let searchMode = 'username';
+    let billing = 'monthly';
+
+    const langColors = {
+      JavaScript: '#f1e05a', TypeScript: '#3178c6', Python: '#3572A5', HTML: '#e34c26',
+      CSS: '#563d7c', Java: '#b07219', 'C++': '#f34b7d', Ruby: '#701516', Go: '#00ADD8',
+      Rust: '#dea584', PHP: '#4F5D95', 'C#': '#178600', Swift: '#ffac45', Kotlin: '#A97BFF',
+      Dart: '#00B4AB', Shell: '#89e051',
+    };
+
+    const PRICES = {
+      monthly: { pro: 9, team: 29, proBilled: 'Billed monthly', teamBilled: 'Billed monthly, up to 10 seats', period: '/ month' },
+      yearly: { pro: 7, team: 24, proBilled: 'Billed $84 yearly', teamBilled: 'Billed $288 yearly, up to 10 seats', period: '/ month' },
+    };
+
+    // Escape any text coming from the GitHub API before inserting it as HTML
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (githubToken) document.getElementById('tokenInput').value = githubToken;
+      updateTokenIndicator(!!githubToken);
+      checkRateLimit();
+    });
+
+    async function fetchGitHub(url) {
+      const headers = {};
+      if (githubToken) headers['Authorization'] = `token ${githubToken}`;
+      const res = await fetch(url, { headers });
+      const remaining = res.headers.get('X-RateLimit-Remaining');
+      const limit = res.headers.get('X-RateLimit-Limit');
+      if (remaining !== null && limit !== null) updateRateLimitDisplay(remaining, limit);
+      return res;
+    }
+
+    function updateRateLimitDisplay(remaining, limit) {
+      document.getElementById('rateLimitText').innerText = `Rate limit: ${remaining}/${limit} remaining`;
+    }
+
+    async function checkRateLimit() {
+      try {
+        const res = await fetchGitHub('https://api.github.com/rate_limit');
+        if (res.ok) {
+          const core = (await res.json()).resources.core;
+          updateRateLimitDisplay(core.remaining, core.limit);
+        }
+      } catch (e) {
+        console.error('Could not check rate limit', e);
+      }
+    }
+
+    function toggleTokenModal() {
+      document.getElementById('tokenModal').classList.toggle('hidden');
+    }
+
+    function saveToken() {
+      githubToken = document.getElementById('tokenInput').value.trim();
+      if (githubToken) {
+        localStorage.setItem('github_explorer_token', githubToken);
+        updateTokenIndicator(true);
+      } else {
+        clearToken();
+        return;
+      }
+      toggleTokenModal();
+      checkRateLimit();
+    }
+
+    function clearToken() {
+      githubToken = '';
+      localStorage.removeItem('github_explorer_token');
+      document.getElementById('tokenInput').value = '';
+      updateTokenIndicator(false);
+      toggleTokenModal();
+      checkRateLimit();
+    }
+
+    function updateTokenIndicator(hasToken) {
+      document.getElementById('tokenStatusDot').className = `status-dot ${hasToken ? 'green' : 'red'}`;
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      const isDark = html.classList.toggle('dark');
+      icon.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+      icon.style.color = isDark ? '' : '#f59e0b';
+    }
+
+    function resetApp() {
+      currentUserData = null;
+      allRepos = [];
+      filteredRepos = [];
+      document.getElementById('searchInput').value = '';
+      ['profileContainer', 'errorState', 'aiResultsContainer'].forEach((id) => document.getElementById(id).classList.add('hidden'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function handleSearchSubmit(e) {
+      e.preventDefault();
+      const username = document.getElementById('searchInput').value.trim();
+      if (username) fetchUserProfile(username);
+    }
+
+    function searchUserDirect(username) {
+      document.getElementById('searchInput').value = username;
+      fetchUserProfile(username);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchSearchMode(mode) {
+      searchMode = mode;
+      const isUser = mode === 'username';
+      document.getElementById('modeBtnUsername').className = `seg-btn ${isUser ? 'active' : ''}`;
+      document.getElementById('modeBtnAI').className = `seg-btn ai ${isUser ? '' : 'active'}`;
+      document.getElementById('searchForm').classList.toggle('hidden', !isUser);
+      document.getElementById('aiSearchForm').classList.toggle('hidden', isUser);
+    }
+
+    function setAIPrompt(text) {
+      document.getElementById('aiInput').value = text;
+    }
+
+    function closeAIResults() {
+      document.getElementById('aiResultsContainer').classList.add('hidden');
+      if (currentUserData) document.getElementById('profileContainer').classList.remove('hidden');
+    }
+
+    async function handleAISearchSubmit(e) {
+      e.preventDefault();
+      const prompt = document.getElementById('aiInput').value.trim();
+      if (!prompt) return;
+
+      showLoading(true, 'AI is analyzing your query and searching GitHub developers...');
+      hideError();
+      document.getElementById('profileContainer').classList.add('hidden');
+      document.getElementById('aiResultsContainer').classList.add('hidden');
+
+      const lower = prompt.toLowerCase();
+      let target;
+      if (lower.includes('linux') || lower.includes('kernel') || lower.includes('torvalds')) target = 'torvalds';
+      else if (lower.includes('react') || lower.includes('gaearon')) target = 'gaearon';
+      else if (lower.includes('vue') || lower.includes('yyx')) target = 'yyx990803';
+      else if (lower.includes('frontend') || lower.includes('javascript') || lower.includes('ui')) target = 'sindresorhus';
+      else if (lower.includes('python') || lower.includes('data')) target = 'kennethreitz';
+
+      try {
+        if (target) {
+          await fetchUserProfile(target);
+          await searchGitHubUsersAPI(target, prompt);
         } else {
-          updateTokenIndicator(false);
+          const keywords = prompt.split(' ').filter((w) => w.length > 2);
+          await searchGitHubUsersAPI(keywords[0] || 'octocat', prompt);
         }
-        checkRateLimit();
-      });
+      } catch (err) {
+        console.error(err);
+        showLoading(false);
+        showError('AI search error', 'Failed to process the natural language query.');
+      }
+    }
 
-      async function fetchGitHub(url) {
-        const headers = {};
-        if (githubToken) {
-          headers['Authorization'] = `token ${githubToken}`;
+    async function searchGitHubUsersAPI(keyword, originalPrompt) {
+      try {
+        const res = await fetchGitHub(`https://api.github.com/search/users?q=${encodeURIComponent(keyword)}&per_page=6`);
+        showLoading(false);
+        if (!res.ok) {
+          showError('API limit', 'GitHub search rate limit reached or the query is invalid.');
+          return;
         }
-        const res = await fetch(url, { headers });
-        const remaining = res.headers.get('X-RateLimit-Remaining');
-        const limit = res.headers.get('X-RateLimit-Limit');
-        if (remaining !== null && limit !== null) {
-          updateRateLimitDisplay(remaining, limit);
+        const items = (await res.json()).items || [];
+        if (items.length === 0) {
+          showError('No developers found', `AI could not find developers matching "${originalPrompt}".`);
+          return;
         }
-        return res;
+        if (!currentUserData) await fetchUserProfile(items[0].login);
+        renderAIDevGrid(items, originalPrompt);
+      } catch (e) {
+        showLoading(false);
+        showError('Error', 'Could not complete the AI search query.');
       }
+    }
 
-      function updateRateLimitDisplay(remaining, limit) {
-        const textEl = document.getElementById('rateLimitText');
-        if (textEl) {
-          textEl.innerText = `Rate limit: ${remaining}/${limit} remaining`;
-        }
-      }
+    function renderAIDevGrid(users, promptText) {
+      document.getElementById('aiQuerySummary').innerText = `Results for: "${promptText}"`;
+      document.getElementById('aiDevGrid').innerHTML = users.map((user) => `
+        <div class="card user-card" onclick="searchUserDirect('${esc(user.login)}'); document.getElementById('aiResultsContainer').classList.add('hidden');">
+          <img src="${esc(user.avatar_url)}" alt="${esc(user.login)}" />
+          <div>
+            <h4>${esc(user.login)}</h4>
+            <span style="color: var(--ai); font-size: 0.75rem; font-weight: 500">Match &middot; Inspect &rarr;</span>
+          </div>
+        </div>`).join('');
+      document.getElementById('aiResultsContainer').classList.remove('hidden');
+    }
 
-      async function checkRateLimit() {
-        try {
-          const res = await fetchGitHub('https://api.github.com/rate_limit');
-          if (res.ok) {
-            const data = await res.json();
-            const core = data.resources.core;
-            updateRateLimitDisplay(core.remaining, core.limit);
-          }
-        } catch (e) {
-          console.error('Could not check rate limit', e);
-        }
-      }
+    async function fetchUserProfile(username) {
+      showLoading(true, 'Fetching GitHub profile data...');
+      hideError();
+      document.getElementById('profileContainer').classList.add('hidden');
 
-      function toggleTokenModal() {
-        const modal = document.getElementById('tokenModal');
-        modal.classList.toggle('hidden');
-      }
-
-      function saveToken() {
-        const input = document.getElementById('tokenInput').value.trim();
-        githubToken = input;
-        if (githubToken) {
-          localStorage.setItem('github_explorer_token', githubToken);
-          updateTokenIndicator(true);
-        } else {
-          clearToken();
-        }
-        toggleTokenModal();
-        checkRateLimit();
-      }
-
-      function clearToken() {
-        githubToken = '';
-        localStorage.removeItem('github_explorer_token');
-        document.getElementById('tokenInput').value = '';
-        updateTokenIndicator(false);
-        toggleTokenModal();
-        checkRateLimit();
-      }
-
-      function updateTokenIndicator(hasToken) {
-        const dot = document.getElementById('tokenStatusDot');
-        if (hasToken) {
-          dot.className = 'status-dot green';
-        } else {
-          dot.className = 'status-dot red';
-        }
-      }
-
-      function toggleTheme() {
-        const html = document.documentElement;
-        const icon = document.getElementById('themeIcon');
-        if (html.classList.contains('dark')) {
-          html.classList.remove('dark');
-          icon.className = 'fa-solid fa-sun';
-          icon.style.color = '#f59e0b';
-        } else {
-          html.classList.add('dark');
-          icon.className = 'fa-solid fa-moon';
-          icon.style.color = '';
-        }
-      }
-
-      function resetApp() {
-        currentUsername = '';
-        currentUserData = null;
-        allRepos = [];
-        filteredRepos = [];
-        document.getElementById('searchInput').value = '';
-        document.getElementById('profileContainer').classList.add('hidden');
-        document.getElementById('errorState').classList.add('hidden');
-        document.getElementById('aiResultsContainer').classList.add('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      function handleSearchSubmit(e) {
-        e.preventDefault();
-        const username = document.getElementById('searchInput').value.trim();
-        if (username) {
-          fetchUserProfile(username);
-        }
-      }
-
-      function searchUserDirect(username) {
-        document.getElementById('searchInput').value = username;
-        fetchUserProfile(username);
-        window.scrollTo({ top: 300, behavior: 'smooth' });
-      }
-
-      function switchSearchMode(mode) {
-        searchMode = mode;
-        const btnUser = document.getElementById('modeBtnUsername');
-        const btnAI = document.getElementById('modeBtnAI');
-        const formUser = document.getElementById('searchForm');
-        const formAI = document.getElementById('aiSearchForm');
-
-        if (mode === 'username') {
-          btnUser.className = 'mode-btn active-user';
-          btnAI.className = 'mode-btn';
-          formUser.classList.remove('hidden');
-          formAI.classList.add('hidden');
-        } else {
-          btnAI.className = 'mode-btn active-ai';
-          btnUser.className = 'mode-btn';
-          formAI.classList.remove('hidden');
-          formUser.classList.add('hidden');
-        }
-      }
-
-      function setAIPrompt(promptText) {
-        document.getElementById('aiInput').value = promptText;
-      }
-
-      function closeAIResults() {
-        document.getElementById('aiResultsContainer').classList.add('hidden');
-        if (currentUserData) {
-          showProfile();
-        }
-      }
-
-      async function handleAISearchSubmit(e) {
-        e.preventDefault();
-        const prompt = document.getElementById('aiInput').value.trim();
-        if (!prompt) return;
-
-        showLoading(
-          true,
-          'AI is analyzing query & searching GitHub developers...'
-        );
-        hideError();
-        hideProfile();
-        document.getElementById('aiResultsContainer').classList.add('hidden');
-
-        try {
-          let targetUserQuery = 'torvalds';
-          const lower = prompt.toLowerCase();
-
-          if (
-            lower.includes('linux') ||
-            lower.includes('kernel') ||
-            lower.includes('torvalds')
-          ) {
-            targetUserQuery = 'torvalds';
-          } else if (
-            lower.includes('react') ||
-            lower.includes('dan') ||
-            lower.includes('gaearon')
-          ) {
-            targetUserQuery = 'gaearon';
-          } else if (
-            lower.includes('vue') ||
-            lower.includes('evan') ||
-            lower.includes('yyx')
-          ) {
-            targetUserQuery = 'yyx990803';
-          } else if (
-            lower.includes('frontend') ||
-            lower.includes('javascript') ||
-            lower.includes('ui')
-          ) {
-            targetUserQuery = 'sindresorhus';
-          } else if (lower.includes('python') || lower.includes('data')) {
-            targetUserQuery = 'kennethreitz';
-          } else {
-            const keywords = prompt.split(' ').filter((w) => w.length > 2);
-            const q = keywords.length > 0 ? keywords[0] : 'octocat';
-            await searchGitHubUsersAPI(q, prompt);
-            return;
-          }
-
-          await fetchUserProfile(targetUserQuery);
-          await searchGitHubUsersAPI(targetUserQuery, prompt);
-        } catch (err) {
-          console.error(err);
-          showError(
-            'AI Search Error',
-            'Failed to process natural language search query.'
-          );
+      try {
+        const response = await fetchGitHub(`https://api.github.com/users/${encodeURIComponent(username)}`);
+        if (!response.ok) {
+          if (response.status === 404) showError('User not found', `We couldn't find a GitHub profile for "${username}". Check the spelling and try again.`);
+          else if (response.status === 403) showError('Rate limit exceeded', 'Add a personal access token using the API Token button to continue.');
+          else showError('Error fetching data', `GitHub API returned status ${response.status}.`);
           showLoading(false);
-        }
-      }
-
-      async function searchGitHubUsersAPI(keyword, originalPrompt) {
-        try {
-          const res = await fetchGitHub(
-            `https://api.github.com/search/users?q=${encodeURIComponent(
-              keyword
-            )}&per_page=6`
-          );
-          showLoading(false);
-
-          if (res.ok) {
-            const data = await res.json();
-            const items = data.items || [];
-
-            if (items.length > 0) {
-              await fetchUserProfile(items[0].login);
-              renderAIDevGrid(items, originalPrompt);
-            } else {
-              showError(
-                'No Developers Found',
-                `AI could not find developers matching "${originalPrompt}".`
-              );
-            }
-          } else {
-            showError(
-              'API Limit',
-              'GitHub search rate limit reached or query invalid.'
-            );
-          }
-        } catch (e) {
-          showLoading(false);
-          showError('Error', 'Could not complete AI search query.');
-        }
-      }
-
-      function renderAIDevGrid(users, promptText) {
-        const grid = document.getElementById('aiDevGrid');
-        document.getElementById(
-          'aiQuerySummary'
-        ).innerText = `Results for prompt: "${promptText}"`;
-        document
-          .getElementById('aiResultsContainer')
-          .classList.remove('hidden');
-
-        let html = '';
-        users.forEach((user) => {
-          html += `
-                    <div onclick="searchUserDirect('${user.login}'); document.getElementById('aiResultsContainer').classList.add('hidden');" class="user-card">
-                        <img src="${user.avatar_url}" alt="${user.login}">
-                        <div class="user-card-info">
-                            <h4>${user.login}</h4>
-                            <span style="color: var(--purple-accent); font-size: 0.75rem; font-weight: 500;">Score match &bull; Inspect &rarr;</span>
-                        </div>
-                    </div>
-                `;
-        });
-        grid.innerHTML = html;
-      }
-
-      async function fetchUserProfile(username) {
-        currentUsername = username;
-        showLoading(true, 'Fetching GitHub profile data...');
-        hideError();
-        hideProfile();
-
-        try {
-          const response = await fetchGitHub(
-            `https://api.github.com/users/${username}`
-          );
-
-          if (!response.ok) {
-            if (response.status === 404) {
-              showError(
-                'User Not Found',
-                `We couldn't find any GitHub profile with the username "${username}". Please check the spelling and try again.`
-              );
-            } else if (response.status === 403) {
-              showError(
-                'Rate Limit Exceeded',
-                'GitHub API rate limit exceeded. Please add a Personal Access Token using the top button.'
-              );
-            } else {
-              showError(
-                'Error Fetching Data',
-                `GitHub API returned status ${response.status}.`
-              );
-            }
-            showLoading(false);
-            return;
-          }
-
-          currentUserData = await response.json();
-          renderProfileOverview(currentUserData);
-
-          await Promise.all([
-            fetchRepositories(username),
-            fetchFollowers(username),
-            fetchFollowing(username),
-          ]);
-
-          showLoading(false);
-          showProfile();
-        } catch (err) {
-          console.error(err);
-          showError('Network Error', 'Unable to connect to GitHub API.');
-          showLoading(false);
-        }
-      }
-
-      function renderProfileOverview(user) {
-        document.getElementById('profileAvatar').src =
-          user.avatar_url ||
-          'https://placehold.co/120x120/161b22/c9d1d9?text=Avatar';
-        document.getElementById('profileName').innerText =
-          user.name || user.login;
-
-        const usernameEl = document.getElementById('profileUsername');
-        usernameEl.innerText = `@${user.login}`;
-        usernameEl.href = user.html_url;
-
-        const bioEl = document.getElementById('profileBio');
-        if (user.bio) {
-          bioEl.innerText = user.bio;
-          bioEl.classList.remove('hidden');
-        } else {
-          bioEl.innerText = 'No public bio available.';
-        }
-
-        const compContainer = document.getElementById(
-          'profileCompanyContainer'
-        );
-        if (user.company) {
-          document.getElementById('profileCompany').innerText = user.company;
-          compContainer.classList.remove('hidden');
-        } else {
-          compContainer.classList.add('hidden');
-        }
-
-        const locContainer = document.getElementById(
-          'profileLocationContainer'
-        );
-        if (user.location) {
-          document.getElementById('profileLocation').innerText = user.location;
-          locContainer.classList.remove('hidden');
-        } else {
-          locContainer.classList.add('hidden');
-        }
-
-        const blogContainer = document.getElementById('profileBlogContainer');
-        if (user.blog) {
-          let blogUrl = user.blog;
-          if (!blogUrl.startsWith('http')) blogUrl = 'https://' + blogUrl;
-          const blogLink = document.getElementById('profileBlog');
-          blogLink.href = blogUrl;
-          blogLink.innerText = user.blog.replace(/^https?:\/\//, '');
-          blogContainer.classList.remove('hidden');
-        } else {
-          blogContainer.classList.add('hidden');
-        }
-
-        const joinedDate = new Date(user.created_at).toLocaleDateString(
-          'en-US',
-          { month: 'short', day: 'numeric', year: 'numeric' }
-        );
-        document.getElementById(
-          'profileJoined'
-        ).innerText = `Joined ${joinedDate}`;
-        document.getElementById('profileGithubLink').href = user.html_url;
-
-        document.getElementById('statRepos').innerText = user.public_repos || 0;
-        document.getElementById('statFollowers').innerText =
-          user.followers || 0;
-        document.getElementById('statFollowing').innerText =
-          user.following || 0;
-
-        document.getElementById('badgeRepos').innerText =
-          user.public_repos || 0;
-        document.getElementById('badgeFollowers').innerText =
-          user.followers || 0;
-        document.getElementById('badgeFollowing').innerText =
-          user.following || 0;
-      }
-
-      async function fetchRepositories(username) {
-        try {
-          const res = await fetchGitHub(
-            `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`
-          );
-          if (res.ok) {
-            allRepos = await res.json();
-            filteredRepos = [...allRepos];
-            currentRepoPage = 1;
-            sortRepositories();
-          }
-        } catch (e) {
-          allRepos = [];
-          filteredRepos = [];
-        }
-      }
-
-      function filterRepositories() {
-        const query = document
-          .getElementById('repoSearchInput')
-          .value.toLowerCase();
-        filteredRepos = allRepos.filter(
-          (repo) =>
-            repo.name.toLowerCase().includes(query) ||
-            (repo.description &&
-              repo.description.toLowerCase().includes(query)) ||
-            (repo.language && repo.language.toLowerCase().includes(query))
-        );
-        currentRepoPage = 1;
-        renderRepositories();
-      }
-
-      function sortRepositories() {
-        const sortBy = document.getElementById('repoSortSelect').value;
-        filteredRepos.sort((a, b) => {
-          if (sortBy === 'updated') {
-            return new Date(b.updated_at) - new Date(a.updated_at);
-          } else if (sortBy === 'stars') {
-            return b.stargazers_count - a.stargazers_count;
-          } else if (sortBy === 'forks') {
-            return b.forks_count - a.forks_count;
-          } else if (sortBy === 'name') {
-            return a.name.localeCompare(b.name);
-          }
-        });
-        renderRepositories();
-      }
-
-      function renderRepositories() {
-        const grid = document.getElementById('reposGrid');
-        const pagination = document.getElementById('reposPagination');
-
-        if (filteredRepos.length === 0) {
-          grid.innerHTML = `
-                    <div style="grid-column: span 2; padding: 3rem 0; text-align: center; color: var(--text-secondary); background: var(--bg-card); border-radius: 1rem; border: 1px solid var(--border-color);">
-                        <i class="fa-regular fa-folder-open" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                        <p style="font-size: 0.9rem; font-weight: 500;">No repositories found matching your query.</p>
-                    </div>
-                `;
-          pagination.classList.add('hidden');
           return;
         }
 
-        const totalPages = Math.ceil(filteredRepos.length / reposPerPage);
-        if (currentRepoPage > totalPages) currentRepoPage = totalPages;
-        if (currentRepoPage < 1) currentRepoPage = 1;
-
-        const start = (currentRepoPage - 1) * reposPerPage;
-        const end = start + reposPerPage;
-        const pageItems = filteredRepos.slice(start, end);
-
-        let html = '';
-        pageItems.forEach((repo) => {
-          const langColor = langColors[repo.language] || '#8c959f';
-          const updatedDate = new Date(repo.updated_at).toLocaleDateString(
-            'en-US',
-            { month: 'short', day: 'numeric', year: 'numeric' }
-          );
-
-          html += `
-                    <div class="repo-card">
-                        <div>
-                            <div class="repo-card-title">
-                                <a href="${repo.html_url}" target="_blank">
-                                    <i class="fa-solid fa-book-bookmark" style="font-size: 0.75rem; color: var(--text-muted);"></i>
-                                    <span>${repo.name}</span>
-                                </a>
-                                <span class="repo-badge">${
-                                  repo.private ? 'Private' : 'Public'
-                                }</span>
-                            </div>
-                            <p class="repo-desc">${
-                              repo.description || 'No description provided.'
-                            }</p>
-                        </div>
-                        
-                        <div class="repo-footer">
-                            <div class="repo-footer-left">
-                                ${
-                                  repo.language
-                                    ? `
-                                    <div style="display: flex; align-items: center; gap: 0.375rem;">
-                                        <span class="lang-dot" style="background-color: ${langColor};"></span>
-                                        <span>${repo.language}</span>
-                                    </div>
-                                `
-                                    : '<span></span>'
-                                }
-                                <div style="display: flex; align-items: center; gap: 0.25rem;">
-                                    <i class="fa-regular fa-star"></i>
-                                    <span>${repo.stargazers_count}</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.25rem;">
-                                    <i class="fa-solid fa-code-fork"></i>
-                                    <span>${repo.forks_count}</span>
-                                </div>
-                            </div>
-                            <span>Updated ${updatedDate}</span>
-                        </div>
-                    </div>
-                `;
-        });
-
-        grid.innerHTML = html;
-
-        if (totalPages > 1) {
-          pagination.classList.remove('hidden');
-          document.getElementById(
-            'repoPageInfo'
-          ).innerText = `Page ${currentRepoPage} of ${totalPages}`;
-          document.getElementById('prevRepoPage').disabled =
-            currentRepoPage === 1;
-          document.getElementById('nextRepoPage').disabled =
-            currentRepoPage === totalPages;
-        } else {
-          pagination.classList.add('hidden');
-        }
-      }
-
-      function changeRepoPage(direction) {
-        currentRepoPage += direction;
-        renderRepositories();
-      }
-
-      async function fetchFollowers(username) {
-        const grid = document.getElementById('followersGrid');
-        grid.innerHTML = getLoadingCardsHTML();
-        try {
-          const res = await fetchGitHub(
-            `https://api.github.com/users/${username}/followers?per_page=30`
-          );
-          if (res.ok) {
-            const followers = await res.json();
-            renderUserCards(followers, grid, 'No followers found.');
-          } else {
-            grid.innerHTML = `<p style="grid-column: span 3; text-align: center; color: var(--text-secondary); padding: 2rem;">Unable to load followers.</p>`;
-          }
-        } catch (e) {
-          grid.innerHTML = `<p style="grid-column: span 3; text-align: center; color: var(--text-secondary); padding: 2rem;">Error loading followers.</p>`;
-        }
-      }
-
-      async function fetchFollowing(username) {
-        const grid = document.getElementById('followingGrid');
-        grid.innerHTML = getLoadingCardsHTML();
-        try {
-          const res = await fetchGitHub(
-            `https://api.github.com/users/${username}/following?per_page=30`
-          );
-          if (res.ok) {
-            const following = await res.json();
-            renderUserCards(following, grid, 'Not following anyone.');
-          } else {
-            grid.innerHTML = `<p style="grid-column: span 3; text-align: center; color: var(--text-secondary); padding: 2rem;">Unable to load following list.</p>`;
-          }
-        } catch (e) {
-          grid.innerHTML = `<p style="grid-column: span 3; text-align: center; color: var(--text-secondary); padding: 2rem;">Error loading following list.</p>`;
-        }
-      }
-
-      function renderUserCards(users, container, emptyMessage) {
-        if (!users || users.length === 0) {
-          container.innerHTML = `
-                    <div style="grid-column: span 3; padding: 3rem 0; text-align: center; color: var(--text-secondary); background: var(--bg-card); border-radius: 1rem; border: 1px solid var(--border-color);">
-                        <i class="fa-solid fa-users-slash" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                        <p style="font-size: 0.9rem; font-weight: 500;">${emptyMessage}</p>
-                    </div>
-                `;
-          return;
-        }
-
-        let html = '';
-        users.forEach((user) => {
-          html += `
-                    <div onclick="searchUserDirect('${user.login}')" class="user-card">
-                        <img src="${user.avatar_url}" alt="${user.login}">
-                        <div class="user-card-info">
-                            <h4>${user.login}</h4>
-                            <a href="${user.html_url}" target="_blank" onclick="event.stopPropagation()">View GitHub &rarr;</a>
-                        </div>
-                    </div>
-                `;
-        });
-        container.innerHTML = html;
-      }
-
-      function getLoadingCardsHTML() {
-        return `
-                <div style="grid-column: span 3; text-align: center; padding: 3rem; color: var(--text-secondary);">
-                    <div class="spinner" style="width: 32px; height: 32px; margin: 0 auto 0.75rem auto; border-width: 3px;"></div>
-                    <p style="font-size: 0.8rem;">Loading list...</p>
-                </div>
-            `;
-      }
-
-      function switchTab(tabName) {
-        const tabs = ['repos', 'followers', 'following'];
-        tabs.forEach((t) => {
-          const btn = document.getElementById(`tabBtn${capitalize(t)}`);
-          const section = document.getElementById(`section${capitalize(t)}`);
-
-          if (t === tabName) {
-            btn.className = 'tab-btn active';
-            section.classList.remove('hidden');
-          } else {
-            btn.className = 'tab-btn';
-            section.classList.add('hidden');
-          }
-        });
-      }
-
-      function capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-      }
-
-      function showLoading(show, text = 'Fetching GitHub profile data...') {
-        const el = document.getElementById('loadingState');
-        document.getElementById('loadingText').innerText = text;
-        if (show) el.classList.remove('hidden');
-        else el.classList.add('hidden');
-      }
-
-      function showProfile() {
+        currentUserData = await response.json();
+        renderProfileOverview(currentUserData);
+        await Promise.all([fetchRepositories(username), fetchFollowers(username), fetchFollowing(username)]);
+        showLoading(false);
         document.getElementById('profileContainer').classList.remove('hidden');
+        switchTab('repos');
+      } catch (err) {
+        console.error(err);
+        showLoading(false);
+        showError('Network error', 'Unable to connect to the GitHub API.');
+      }
+    }
+
+    function renderProfileOverview(user) {
+      document.getElementById('profileAvatar').src = user.avatar_url || '';
+      document.getElementById('profileName').innerText = user.name || user.login;
+
+      const handle = document.getElementById('profileUsername');
+      handle.innerText = `@${user.login}`;
+      handle.href = user.html_url;
+
+      const bio = document.getElementById('profileBio');
+      bio.innerText = user.bio || 'No public bio available.';
+
+      toggleMeta('profileCompanyContainer', 'profileCompany', user.company);
+      toggleMeta('profileLocationContainer', 'profileLocation', user.location);
+
+      const blogContainer = document.getElementById('profileBlogContainer');
+      if (user.blog) {
+        const blogLink = document.getElementById('profileBlog');
+        blogLink.href = user.blog.startsWith('http') ? user.blog : `https://${user.blog}`;
+        blogLink.innerText = user.blog.replace(/^https?:\/\//, '');
+        blogContainer.classList.remove('hidden');
+      } else {
+        blogContainer.classList.add('hidden');
       }
 
-      function hideProfile() {
-        document.getElementById('profileContainer').classList.add('hidden');
+      const joined = new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('profileJoined').innerText = `Joined ${joined}`;
+      document.getElementById('profileGithubLink').href = user.html_url;
+
+      const counts = { Repos: user.public_repos || 0, Followers: user.followers || 0, Following: user.following || 0 };
+      document.getElementById('statRepos').innerText = counts.Repos;
+      document.getElementById('statFollowers').innerText = counts.Followers;
+      document.getElementById('statFollowing').innerText = counts.Following;
+      document.getElementById('badgeRepos').innerText = counts.Repos;
+      document.getElementById('badgeFollowers').innerText = counts.Followers;
+      document.getElementById('badgeFollowing').innerText = counts.Following;
+    }
+
+    function toggleMeta(containerId, textId, value) {
+      const container = document.getElementById(containerId);
+      if (value) {
+        document.getElementById(textId).innerText = value;
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    async function fetchRepositories(username) {
+      try {
+        const res = await fetchGitHub(`https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&sort=updated`);
+        allRepos = res.ok ? await res.json() : [];
+      } catch (e) {
+        allRepos = [];
+      }
+      filteredRepos = [...allRepos];
+      currentRepoPage = 1;
+      document.getElementById('repoSearchInput').value = '';
+      sortRepositories();
+    }
+
+    function filterRepositories() {
+      const q = document.getElementById('repoSearchInput').value.toLowerCase();
+      filteredRepos = allRepos.filter((r) =>
+        r.name.toLowerCase().includes(q) ||
+        (r.description || '').toLowerCase().includes(q) ||
+        (r.language || '').toLowerCase().includes(q));
+      currentRepoPage = 1;
+      sortRepositories();
+    }
+
+    function sortRepositories() {
+      const sortBy = document.getElementById('repoSortSelect').value;
+      const sorters = {
+        updated: (a, b) => new Date(b.updated_at) - new Date(a.updated_at),
+        stars: (a, b) => b.stargazers_count - a.stargazers_count,
+        forks: (a, b) => b.forks_count - a.forks_count,
+        name: (a, b) => a.name.localeCompare(b.name),
+      };
+      filteredRepos.sort(sorters[sortBy]);
+      renderRepositories();
+    }
+
+    function renderRepositories() {
+      const grid = document.getElementById('reposGrid');
+      const pagination = document.getElementById('reposPagination');
+
+      if (filteredRepos.length === 0) {
+        grid.innerHTML = `<div class="empty"><i class="fa-regular fa-folder-open"></i><p>No repositories match your search.</p></div>`;
+        pagination.classList.add('hidden');
+        return;
       }
 
-      function showError(title, desc) {
-        document.getElementById('errorTitle').innerText = title;
-        document.getElementById('errorDesc').innerText = desc;
-        document.getElementById('errorState').classList.remove('hidden');
-      }
+      const totalPages = Math.ceil(filteredRepos.length / reposPerPage);
+      currentRepoPage = Math.min(Math.max(currentRepoPage, 1), totalPages);
+      const start = (currentRepoPage - 1) * reposPerPage;
 
-      function hideError() {
-        document.getElementById('errorState').classList.add('hidden');
+      grid.innerHTML = filteredRepos.slice(start, start + reposPerPage).map((repo) => {
+        const color = langColors[repo.language] || '#8c959f';
+        const updated = new Date(repo.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return `
+          <div class="card repo-card">
+            <div>
+              <div class="repo-title">
+                <a href="${esc(repo.html_url)}" target="_blank" rel="noopener"><i class="fa-solid fa-book-bookmark" style="font-size: 0.75rem; color: var(--text-3)"></i><span>${esc(repo.name)}</span></a>
+                <span class="pill">${repo.private ? 'Private' : 'Public'}</span>
+              </div>
+              <p class="repo-desc">${esc(repo.description || 'No description provided.')}</p>
+            </div>
+            <div class="repo-foot">
+              <div class="left">
+                ${repo.language ? `<div class="item"><span class="lang-dot" style="background:${color}"></span>${esc(repo.language)}</div>` : ''}
+                <div class="item"><i class="fa-regular fa-star"></i>${repo.stargazers_count}</div>
+                <div class="item"><i class="fa-solid fa-code-fork"></i>${repo.forks_count}</div>
+              </div>
+              <span>Updated ${updated}</span>
+            </div>
+          </div>`;
+      }).join('');
+
+      if (totalPages > 1) {
+        pagination.classList.remove('hidden');
+        document.getElementById('repoPageInfo').innerText = `Page ${currentRepoPage} of ${totalPages}`;
+        document.getElementById('prevRepoPage').disabled = currentRepoPage === 1;
+        document.getElementById('nextRepoPage').disabled = currentRepoPage === totalPages;
+      } else {
+        pagination.classList.add('hidden');
       }
-    </script>
-  </body>
+    }
+
+    function changeRepoPage(direction) {
+      currentRepoPage += direction;
+      renderRepositories();
+    }
+
+    async function fetchFollowers(username) {
+      await loadUserList(`https://api.github.com/users/${encodeURIComponent(username)}/followers?per_page=30`, 'followersGrid', 'No followers found.', 'Unable to load followers.');
+    }
+
+    async function fetchFollowing(username) {
+      await loadUserList(`https://api.github.com/users/${encodeURIComponent(username)}/following?per_page=30`, 'followingGrid', 'Not following anyone.', 'Unable to load following list.');
+    }
+
+    async function loadUserList(url, containerId, emptyMessage, errorMessage) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = `<div class="empty"><div class="spinner" style="width:28px;height:28px;margin:0 auto 0.6rem;border-width:3px"></div><p>Loading list...</p></div>`;
+      try {
+        const res = await fetchGitHub(url);
+        if (!res.ok) throw new Error('bad response');
+        renderUserCards(await res.json(), container, emptyMessage);
+      } catch (e) {
+        container.innerHTML = `<div class="empty"><p>${errorMessage}</p></div>`;
+      }
+    }
+
+    function renderUserCards(users, container, emptyMessage) {
+      if (!users || users.length === 0) {
+        container.innerHTML = `<div class="empty"><i class="fa-solid fa-users-slash"></i><p>${emptyMessage}</p></div>`;
+        return;
+      }
+      container.innerHTML = users.map((user) => `
+        <div class="card user-card" onclick="searchUserDirect('${esc(user.login)}')">
+          <img src="${esc(user.avatar_url)}" alt="${esc(user.login)}" />
+          <div>
+            <h4>${esc(user.login)}</h4>
+            <a href="${esc(user.html_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">View on GitHub &rarr;</a>
+          </div>
+        </div>`).join('');
+    }
+
+    function switchTab(tabName) {
+      ['repos', 'followers', 'following'].forEach((t) => {
+        const cap = t.charAt(0).toUpperCase() + t.slice(1);
+        document.getElementById(`tabBtn${cap}`).className = `tab ${t === tabName ? 'active' : ''}`;
+        document.getElementById(`section${cap}`).classList.toggle('hidden', t !== tabName);
+      });
+    }
+
+    function setBilling(cycle) {
+      billing = cycle;
+      const p = PRICES[cycle];
+      document.getElementById('billMonthly').className = `seg-btn ${cycle === 'monthly' ? 'active' : ''}`;
+      document.getElementById('billYearly').className = `seg-btn ${cycle === 'yearly' ? 'active' : ''}`;
+      document.getElementById('proPrice').innerText = `$${p.pro}`;
+      document.getElementById('teamPrice').innerText = `$${p.team}`;
+      document.getElementById('proPeriod').innerText = p.period;
+      document.getElementById('teamPeriod').innerText = p.period;
+      document.getElementById('proBilled').innerText = p.proBilled;
+      document.getElementById('teamBilled').innerText = p.teamBilled;
+    }
+
+    function choosePlan(plan) {
+      const messages = {
+        Free: 'You are on the Free plan. Search away!',
+        Pro: `Pro selected (${billing} billing). Checkout will be connected here.`,
+        Team: 'Thanks! Our sales team will reach out. Checkout will be connected here.',
+      };
+      alert(messages[plan]);
+    }
+
+    function showLoading(show, text = 'Fetching GitHub profile data...') {
+      document.getElementById('loadingText').innerText = text;
+      document.getElementById('loadingState').classList.toggle('hidden', !show);
+    }
+
+    function showError(title, desc) {
+      document.getElementById('errorTitle').innerText = title;
+      document.getElementById('errorDesc').innerText = desc;
+      document.getElementById('errorState').classList.remove('hidden');
+    }
+
+    function hideError() {
+      document.getElementById('errorState').classList.add('hidden');
+    }
+  </script>
+</body>
 </html>
