@@ -22,6 +22,7 @@
       --ai-soft: rgba(184, 95, 60, 0.1);
       --danger: #a83e2e;
       --danger-soft: #f9e9e4;
+      --warn: #b7791f;
       --shadow: 0 10px 30px rgba(30, 50, 38, 0.07);
       --radius: 10px;
       --display: 'Space Grotesk', sans-serif;
@@ -42,6 +43,7 @@
       --ai-soft: rgba(228, 154, 116, 0.12);
       --danger: #f08f78;
       --danger-soft: rgba(168, 62, 46, 0.18);
+      --warn: #f0b429;
       --shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
     }
     html { color-scheme: light; scroll-behavior: smooth; }
@@ -69,6 +71,34 @@
     }
     .hidden { display: none !important; }
     .container { width: 100%; max-width: 1160px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* Maintenance banner */
+    .maintenance-banner {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0.65rem 3.25rem;
+      background: color-mix(in srgb, var(--warn) 12%, var(--surface-2));
+      border-bottom: 1px solid color-mix(in srgb, var(--warn) 32%, var(--border));
+      font-size: 0.8rem; line-height: 1.45; text-align: center;
+    }
+    .maintenance-banner p { max-width: 1000px; }
+    .maintenance-banner .maintenance-label {
+      color: var(--warn); font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+    }
+    .maintenance-banner .fa-screwdriver-wrench { color: var(--warn); margin-right: 0.4rem; }
+    .maintenance-banner strong { font-weight: 700; }
+    .maintenance-close {
+      position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
+      display: flex; align-items: center; justify-content: center;
+      width: 1.9rem; height: 1.9rem; border-radius: 6px; border: 1px solid transparent;
+      background: transparent; color: var(--text-2); font-size: 0.85rem; cursor: pointer;
+    }
+    .maintenance-close:hover {
+      background: color-mix(in srgb, var(--warn) 18%, transparent);
+      border-color: color-mix(in srgb, var(--warn) 32%, transparent);
+      color: var(--text);
+    }
 
     /* Header */
     header {
@@ -286,6 +316,7 @@
     @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
     @media (max-width: 640px) {
       .header-actions .btn-icon span:not(.status-dot) { display: none; }
+      .maintenance-banner { padding: 0.6rem 2.75rem; font-size: 0.75rem; }
       main { padding: 2.5rem 0 2.5rem; }
       .hero { margin-bottom: 2.5rem; }
       .stat-value { font-size: 1.15rem; }
@@ -295,6 +326,18 @@
   </style>
 </head>
 <body>
+
+  <!-- Maintenance notice: update the maintenance window text below, or delete this whole block when maintenance is over -->
+  <div id="maintenanceBanner" class="maintenance-banner" role="status" aria-live="polite">
+    <p>
+      <span class="maintenance-label"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i>Planned maintenance</span>
+      &mdash; GitHub Explorer will be temporarily unavailable on
+      <strong>Sunday, 25 October 2026, 02:00&ndash;04:00 UTC</strong> while we upgrade the service.
+    </p>
+    <button type="button" class="maintenance-close" onclick="dismissMaintenanceBanner()" aria-label="Dismiss maintenance notice">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </div>
 
   <header>
     <div class="container header-inner">
@@ -495,6 +538,18 @@
     const reposPerPage = 6;
     let githubToken = localStorage.getItem('github_explorer_token') || '';
     let searchMode = 'username';
+
+    // Maintenance banner: stays dismissed for the rest of the browsing session
+    const maintenanceKey = 'github_explorer_maintenance_dismissed';
+    const maintenanceBanner = document.getElementById('maintenanceBanner');
+    try {
+      if (sessionStorage.getItem(maintenanceKey) === '1') maintenanceBanner.classList.add('hidden');
+    } catch (e) { /* storage unavailable */ }
+
+    function dismissMaintenanceBanner() {
+      maintenanceBanner.classList.add('hidden');
+      try { sessionStorage.setItem(maintenanceKey, '1'); } catch (e) { /* ignore */ }
+    }
 
     const langColors = {
       JavaScript: '#f1e05a', TypeScript: '#3178c6', Python: '#3572A5', HTML: '#e34c26',
