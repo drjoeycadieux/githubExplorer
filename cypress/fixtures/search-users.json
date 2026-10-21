@@ -1,0 +1,16 @@
+{
+  "total_count": 2,
+  "incomplete_results": false,
+  "items": [
+    {
+      "login": "torvalds",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1024025?v=4",
+      "html_url": "https://github.com/torvalds"
+    },
+    {
+      "login": "gaearon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/810438?v=4",
+      "html_url": "https://github.com/gaearon"
+    }
+  ]
+}

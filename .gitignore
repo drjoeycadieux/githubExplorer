@@ -8,6 +8,11 @@ firebase-debug.log
 # Logs
 *.log
 
+# Cypress
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
 # OS and editor files
 .DS_Store
 Thumbs.db

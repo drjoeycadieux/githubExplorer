@@ -23,10 +23,24 @@ npm start
 
 Open the local URL printed by the server. Use HTTP rather than opening `index.html` or `vulnerability-report.html` with a `file://` URL; the report page loads ES modules from external sources.
 
+## End-to-end tests
+
+Cypress covers the explorer and the vulnerability-report form. The tests stub the GitHub API and the report page's Firebase modules, so they run offline and never write to the real Firestore project.
+
+```sh
+npm run test:e2e        # headless run
+npm run cypress:open    # interactive runner
+```
+
+Cypress starts the local server automatically on port 4173. If you already have `npm start` running on port 8080, it is left untouched. The suite also runs in GitHub Actions on pushes to `main` and on pull requests.
+
 ## Project structure
 
 ```text
 .
+├── .github/
+│   └── workflows/
+│       └── e2e.yml             # GitHub Actions Cypress run
 ├── index.html                  # GitHub Explorer interface
 ├── vulnerability-report.html   # Private report form
 ├── assets/
@@ -37,8 +51,13 @@ Open the local URL printed by the server. Use HTTP rather than opening `index.ht
 │       ├── main.js             # Explorer logic and GitHub API calls
 │       ├── report.js           # Report form, Firebase and Markdown preview
 │       └── firebase-config.js  # Firebase web app configuration
+├── cypress/
+│   ├── e2e/                    # End-to-end specs
+│   ├── fixtures/               # GitHub API responses
+│   └── support/                # Shared Cypress commands
 ├── docs/
 │   └── FIREBASE_SETUP.md       # Firebase deployment and privacy guidance
+├── cypress.config.js           # Cypress and local web server configuration
 ├── firestore.rules             # Firestore access rules
 ├── package.json
 └── README.md
