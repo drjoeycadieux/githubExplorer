@@ -101,3 +101,54 @@ Cypress.Commands.add('stubReportModules', () => {
     `)
   );
 });
+
+/**
+ * Stub the GraphiQL CDN bundles so the GraphQL page can be tested offline.
+ */
+Cypress.Commands.add('stubGraphiQL', () => {
+  const cssResponse = {
+    statusCode: 200,
+    headers: { 'content-type': 'text/css' },
+    body: '/* GraphiQL stub for tests */',
+  };
+
+  cy.intercept('GET', /unpkg\.com\/graphiql@.*\.css/, cssResponse);
+
+  cy.intercept(
+    'GET',
+    /unpkg\.com\/react@18\.3\.1\/umd\/react\.production\.min\.js/,
+    moduleResponse(
+      'window.React = { createElement: function (type, props) { return { type: type, props: props }; } };'
+    )
+  );
+
+  cy.intercept(
+    'GET',
+    /unpkg\.com\/react-dom@18\.3\.1\/umd\/react-dom\.production\.min\.js/,
+    moduleResponse(`
+      window.ReactDOM = {
+        createRoot: function (container) {
+          return {
+            render: function (node) {
+              container.__rendered = node;
+              window.__graphiqlNode = node;
+            },
+          };
+        },
+      };
+    `)
+  );
+
+  cy.intercept(
+    'GET',
+    /unpkg\.com\/graphiql@.*\/graphiql\.min\.js/,
+    moduleResponse(`
+      window.GraphiQL = function GraphiQL() {};
+      window.GraphiQL.createFetcher = function (options) {
+        window.__graphiqlFetcher = options;
+        return function () { return Promise.resolve({ data: {} }); };
+      };
+    `)
+  );
+});
+

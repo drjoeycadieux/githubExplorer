@@ -1,6 +1,6 @@
 # GitHub Explorer
 
-A static web application for exploring GitHub profiles, repositories, followers, and following. It also includes a private vulnerability-report form with a live Markdown preview.
+A static web application for exploring GitHub profiles, repositories, followers, and following. It also includes a private vulnerability-report form with a live Markdown preview and a browser-based GraphQL Explorer.
 
 ## Features
 
@@ -11,6 +11,7 @@ A static web application for exploring GitHub profiles, repositories, followers,
 - Optionally use a GitHub personal access token to increase API rate limits. The token is stored in browser `localStorage` and sent directly to GitHub from the browser.
 - Switch between light and dark themes.
 - Submit vulnerability reports with severity, affected asset, contact email, and Markdown-formatted technical details.
+- Run GraphQL queries against the GitHub GraphQL API from a browser-based GraphiQL editor using your own token.
 
 ## Run locally
 
@@ -25,7 +26,7 @@ Open the local URL printed by the server. Use HTTP rather than opening `index.ht
 
 ## End-to-end tests
 
-Cypress covers the explorer and the vulnerability-report form. The tests stub the GitHub API and the report page's Firebase modules, so they run offline and never write to the real Firestore project.
+Cypress covers the explorer, the vulnerability-report form, and the GraphQL Explorer. The tests stub the GitHub API, the report page's Firebase modules, and the GraphiQL CDN bundles, so they run offline and never write to the real Firestore project or call GitHub.
 
 ```sh
 npm run test:e2e        # headless run
@@ -43,13 +44,16 @@ Cypress starts the local server automatically on port 4173. If you already have 
 │       └── e2e.yml             # GitHub Actions Cypress run
 ├── index.html                  # GitHub Explorer interface
 ├── vulnerability-report.html   # Private report form
+├── graphql.html                # Browser-based GraphQL Explorer
 ├── assets/
 │   ├── css/
 │   │   ├── main.css            # Explorer styles
-│   │   └── report.css          # Report form styles
+│   │   ├── report.css          # Report form and shared page styles
+│   │   └── graphql.css         # GraphQL Explorer styles
 │   └── js/
 │       ├── main.js             # Explorer logic and GitHub API calls
 │       ├── report.js           # Report form, Firebase and Markdown preview
+│       ├── graphql.js          # GraphQL Explorer token and editor setup
 │       └── firebase-config.js  # Firebase web app configuration
 ├── cypress/
 │   ├── e2e/                    # End-to-end specs
@@ -62,6 +66,18 @@ Cypress starts the local server automatically on port 4173. If you already have 
 ├── package.json
 └── README.md
 ```
+
+## GraphQL Explorer
+
+Open [`graphql.html`](graphql.html) from the footer link or the **GraphQL** button in the header. The page renders a [GraphiQL](https://github.com/graphql/graphiql) editor that sends queries directly from the browser to `https://api.github.com/graphql`.
+
+GitHub requires authentication for GraphQL, so a personal access token is required. The token is stored in the same `localStorage` key as the main explorer (`github_explorer_token`) and is sent only to GitHub. There is no backend proxy and no shared token, so the page is safe to host on any static host, including production.
+
+Notes:
+
+- Use a read-only token with the minimum scopes needed for the data you query.
+- GitHub GraphQL uses point-based rate limits. Run the **Viewer and rate limit** example to inspect the remaining budget.
+- If you need to query data without asking each visitor for a token, you would need a server-side proxy that holds the token. That is intentionally not part of this static site.
 
 ## Vulnerability reports
 
