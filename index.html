@@ -50,7 +50,10 @@
     body {
       font-family: 'DM Sans', sans-serif;
       background-color: var(--bg);
-      background-image: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(48, 77, 57, 0.035) 40px);
+      background-image:
+        radial-gradient(760px 380px at 50% -160px, color-mix(in srgb, var(--accent) 14%, transparent), transparent 72%),
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(48, 77, 57, 0.035) 40px);
+      background-repeat: no-repeat, repeat;
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -91,8 +94,12 @@
     .status-dot.green { background: #2ea043; }
 
     /* Hero + search */
-    main { flex-grow: 1; width: 100%; padding: 4rem 0 3rem; }
-    .hero { max-width: 820px; margin: 0 auto 3.5rem; animation: rise 0.55s ease both; }
+    main { flex-grow: 1; width: 100%; display: flex; flex-direction: column; padding: 3.5rem 0 3rem; }
+    .hero { width: 100%; max-width: 820px; margin: 0 auto 3.5rem; animation: rise 0.55s ease both; }
+    /* Idle landing state: balance the short hero in the viewport instead of leaving a large gap above the footer */
+    main:not(:has(#profileContainer:not(.hidden))):not(:has(#aiResultsContainer:not(.hidden))):not(:has(#loadingState:not(.hidden))):not(:has(#errorState:not(.hidden))) .hero {
+      margin-top: auto; margin-bottom: auto;
+    }
     .eyebrow { color: var(--accent); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem; }
     .hero h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.06; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 0.75rem; max-width: 660px; }
     .hero > p { color: var(--text-2); max-width: 570px; margin-bottom: 2rem; }
