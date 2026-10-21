@@ -1,6 +1,6 @@
 # Firebase setup for vulnerability reports
 
-The report form stores submissions in the `vulnerabilityReports` Firestore collection. The browser can create validated reports but cannot read, edit, or delete any report. The Firebase web app configuration is in `firebase-config.js`.
+The report form stores submissions in the `vulnerabilityReports` Firestore collection. The browser can create validated reports but cannot read, edit, or delete any report. The Firebase web app configuration is in `assets/js/firebase-config.js`.
 
 ## Configure Firebase
 

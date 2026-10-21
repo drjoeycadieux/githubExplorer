@@ -1,1 +1,13 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Firebase CLI
+.firebase/
+firebase-debug.log
+
+# Logs
+*.log
+
+# OS and editor files
+.DS_Store
+Thumbs.db

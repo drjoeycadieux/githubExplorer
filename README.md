@@ -23,6 +23,27 @@ npm start
 
 Open the local URL printed by the server. Use HTTP rather than opening `index.html` or `vulnerability-report.html` with a `file://` URL; the report page loads ES modules from external sources.
 
+## Project structure
+
+```text
+.
+├── index.html                  # GitHub Explorer interface
+├── vulnerability-report.html   # Private report form
+├── assets/
+│   ├── css/
+│   │   ├── main.css            # Explorer styles
+│   │   └── report.css          # Report form styles
+│   └── js/
+│       ├── main.js             # Explorer logic and GitHub API calls
+│       ├── report.js           # Report form, Firebase and Markdown preview
+│       └── firebase-config.js  # Firebase web app configuration
+├── docs/
+│   └── FIREBASE_SETUP.md       # Firebase deployment and privacy guidance
+├── firestore.rules             # Firestore access rules
+├── package.json
+└── README.md
+```
+
 ## Vulnerability reports
 
 The report form is linked from the main page footer. Reports are written to the `vulnerabilityReports` collection in Cloud Firestore. The collection and its first document are created automatically on the first successful submission; no table or collection needs to be created manually.
@@ -31,18 +52,10 @@ Before submissions can succeed:
 
 1. Create a Cloud Firestore database in the Firebase project.
 2. Deploy the rules in [`firestore.rules`](firestore.rules). They allow validated report creation and deny client reads, updates, and deletes.
-3. Confirm the web app settings in [`firebase-config.js`](firebase-config.js) match the Firebase project.
+3. Confirm the web app settings in [`assets/js/firebase-config.js`](assets/js/firebase-config.js) match the Firebase project.
 
-See [`FIREBASE_SETUP.md`](FIREBASE_SETUP.md) for setup and privacy details. The public form does not use App Check or server-side rate limiting, so monitor Firestore usage and billing for abuse.
+See [`docs/FIREBASE_SETUP.md`](docs/FIREBASE_SETUP.md) for setup and privacy details. The public form does not use App Check or server-side rate limiting, so monitor Firestore usage and billing for abuse.
 
 ## GitHub API token
 
 Unauthenticated GitHub API requests have a lower rate limit. You can optionally add a personal access token using the **API Token** control in the page header. Use a token with only the permissions required for public profile data. The token stays in that browser's local storage; do not commit it or share it.
-
-## Project files
-
-- `index.html` - GitHub Explorer interface and application logic.
-- `vulnerability-report.html` - Private report form and Markdown preview.
-- `firebase-config.js` - Firebase web app configuration.
-- `firestore.rules` - Firestore access rules for vulnerability reports.
-- `FIREBASE_SETUP.md` - Firebase deployment and privacy guidance.
