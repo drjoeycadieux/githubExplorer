@@ -77,9 +77,6 @@
     .header-inner { height: 4.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .logo { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font-weight: 700; font-size: 1.05rem; }
     .logo i { font-size: 1.5rem; color: var(--accent); }
-    .nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.9rem; }
-    .nav a { color: var(--text-2); text-decoration: none; }
-    .nav a:hover { color: var(--text); }
     .header-actions { display: flex; align-items: center; gap: 0.5rem; }
     .btn-icon {
       display: flex; align-items: center; gap: 0.5rem;
@@ -258,46 +255,6 @@
     .ghost-btn { min-height: 2.3rem; padding: 0.4rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-2); font-size: 0.8rem; cursor: pointer; }
     .ghost-btn:hover { border-color: var(--text-3); }
 
-    /* Pricing */
-    .pricing { margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); scroll-margin-top: 5rem; }
-    .pricing-head { text-align: center; max-width: 640px; margin: 0 auto 2rem; }
-    .pricing-head .eyebrow { margin-bottom: 0.6rem; }
-    .pricing-head h2 { font-size: clamp(1.7rem, 4vw, 2.3rem); letter-spacing: -0.01em; margin-bottom: 0.5rem; }
-    .pricing-head p { color: var(--text-2); }
-    .billing-toggle { display: inline-flex; margin: 1.5rem auto 0; }
-    .billing-toggle .seg-btn { min-width: 7.5rem; }
-    .save-tag { display: inline-block; margin-left: 0.35rem; padding: 0.1rem 0.4rem; border-radius: 4px; background: var(--accent-soft); color: var(--accent); font-size: 0.65rem; font-weight: 700; }
-    .seg-btn.active .save-tag { background: rgba(255, 255, 255, 0.2); color: inherit; }
-
-    .price-grid { display: grid; gap: 1.25rem; grid-template-columns: 1fr; align-items: stretch; }
-    @media (min-width: 900px) { .price-grid { grid-template-columns: repeat(3, 1fr); } }
-    .price-card { position: relative; display: flex; flex-direction: column; padding: 1.75rem; box-shadow: none; animation-delay: 0.05s; }
-    .price-card.featured { border: 2px solid var(--accent); box-shadow: var(--shadow); }
-    .popular {
-      position: absolute; top: -0.7rem; left: 50%; transform: translateX(-50%);
-      background: var(--accent); color: var(--surface-2); font-size: 0.7rem; font-weight: 700;
-      padding: 0.25rem 0.75rem; border-radius: 999px; white-space: nowrap;
-    }
-    .plan-name { font-size: 1.05rem; font-weight: 700; }
-    .plan-desc { color: var(--text-2); font-size: 0.85rem; margin-top: 0.25rem; min-height: 2.6rem; }
-    .price { display: flex; align-items: baseline; gap: 0.3rem; margin: 1.1rem 0 0.3rem; }
-    .price strong { font-family: var(--display); font-size: 2.6rem; font-weight: 700; line-height: 1; }
-    .price span { color: var(--text-2); font-size: 0.9rem; }
-    .billed { font-size: 0.75rem; color: var(--text-3); min-height: 1.1rem; }
-    .features { list-style: none; margin: 1.25rem 0 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.9rem; flex-grow: 1; }
-    .features li { display: flex; gap: 0.6rem; align-items: flex-start; }
-    .features li i { color: var(--accent); margin-top: 0.2rem; font-size: 0.8rem; }
-    .features li.off { color: var(--text-3); }
-    .features li.off i { color: var(--text-3); }
-    .plan-btn {
-      width: 100%; min-height: 2.7rem; border-radius: 6px; border: 1px solid var(--accent);
-      background: transparent; color: var(--accent); font-weight: 600; font-size: 0.9rem; cursor: pointer;
-    }
-    .plan-btn:hover { background: var(--accent-soft); }
-    .plan-btn.solid { background: var(--accent); color: var(--surface-2); }
-    .plan-btn.solid:hover { background: var(--accent-hover); }
-    .pricing-note { text-align: center; margin-top: 1.25rem; font-size: 0.8rem; color: var(--text-3); }
-
     footer { border-top: 1px solid var(--border); background: var(--surface-2); padding: 1.5rem 0; font-size: 0.8rem; color: var(--text-2); }
     .footer-flex { display: flex; flex-direction: column; gap: 0.75rem; align-items: center; text-align: center; }
     @media (min-width: 768px) { .footer-flex { flex-direction: row; justify-content: space-between; text-align: left; } }
@@ -321,7 +278,6 @@
 
     @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
     @media (max-width: 640px) {
-      .nav a.hide-sm { display: none; }
       .header-actions .btn-icon span:not(.status-dot) { display: none; }
       main { padding: 2.5rem 0 2.5rem; }
       .hero { margin-bottom: 2.5rem; }
@@ -339,9 +295,6 @@
         <i class="fa-brands fa-github"></i>
         <span>GitHub Explorer</span>
       </div>
-      <nav class="nav">
-        <a href="#pricing" class="hide-sm">Pricing</a>
-      </nav>
       <div class="header-actions">
         <button onclick="toggleTokenModal()" class="btn-icon" aria-label="API token">
           <i class="fa-solid fa-key" style="color: #f59e0b"></i>
@@ -493,68 +446,6 @@
       <div id="sectionFollowers" class="hidden"><div id="followersGrid" class="grid-3"></div></div>
       <div id="sectionFollowing" class="hidden"><div id="followingGrid" class="grid-3"></div></div>
     </div>
-
-    <!-- Pricing -->
-    <section id="pricing" class="pricing">
-      <div class="pricing-head">
-        <div class="eyebrow">Pricing</div>
-        <h2>Simple plans that grow with you</h2>
-        <p>Start free and upgrade when you need higher API limits, team features, and priority support.</p>
-        <div class="segmented billing-toggle" role="tablist">
-          <button id="billMonthly" class="seg-btn active" onclick="setBilling('monthly')">Monthly</button>
-          <button id="billYearly" class="seg-btn" onclick="setBilling('yearly')">Yearly <span class="save-tag">SAVE 20%</span></button>
-        </div>
-      </div>
-
-      <div class="price-grid">
-        <article class="card price-card">
-          <h3 class="plan-name">Free</h3>
-          <p class="plan-desc">For exploring profiles and trying out the directory.</p>
-          <div class="price"><strong>$0</strong><span>forever</span></div>
-          <div class="billed">&nbsp;</div>
-          <ul class="features">
-            <li><i class="fa-solid fa-check"></i>60 API requests per hour</li>
-            <li><i class="fa-solid fa-check"></i>Profile, repo and follower views</li>
-            <li><i class="fa-solid fa-check"></i>Username search</li>
-            <li class="off"><i class="fa-solid fa-xmark"></i>AI natural language search</li>
-            <li class="off"><i class="fa-solid fa-xmark"></i>Saved searches and exports</li>
-          </ul>
-          <button class="plan-btn" onclick="choosePlan('Free')">Get started</button>
-        </article>
-
-        <article class="card price-card featured">
-          <span class="popular">MOST POPULAR</span>
-          <h3 class="plan-name">Pro</h3>
-          <p class="plan-desc">For developers who recruit, research, or scout talent.</p>
-          <div class="price"><strong id="proPrice">$9</strong><span id="proPeriod">/ month</span></div>
-          <div class="billed" id="proBilled">Billed monthly</div>
-          <ul class="features">
-            <li><i class="fa-solid fa-check"></i>5,000 API requests per hour</li>
-            <li><i class="fa-solid fa-check"></i>AI natural language search</li>
-            <li><i class="fa-solid fa-check"></i>Saved searches and watchlists</li>
-            <li><i class="fa-solid fa-check"></i>CSV export of repos and followers</li>
-            <li><i class="fa-solid fa-check"></i>Email support</li>
-          </ul>
-          <button class="plan-btn solid" onclick="choosePlan('Pro')">Start 14-day trial</button>
-        </article>
-
-        <article class="card price-card">
-          <h3 class="plan-name">Team</h3>
-          <p class="plan-desc">For teams running shared sourcing and research workflows.</p>
-          <div class="price"><strong id="teamPrice">$29</strong><span id="teamPeriod">/ month</span></div>
-          <div class="billed" id="teamBilled">Billed monthly, up to 10 seats</div>
-          <ul class="features">
-            <li><i class="fa-solid fa-check"></i>Everything in Pro</li>
-            <li><i class="fa-solid fa-check"></i>Up to 10 seats included</li>
-            <li><i class="fa-solid fa-check"></i>Shared lists and team notes</li>
-            <li><i class="fa-solid fa-check"></i>Usage analytics dashboard</li>
-            <li><i class="fa-solid fa-check"></i>Priority support, 1-business-day reply</li>
-          </ul>
-          <button class="plan-btn" onclick="choosePlan('Team')">Contact sales</button>
-        </article>
-      </div>
-      <p class="pricing-note">Prices in USD. Taxes calculated at checkout. Cancel anytime.</p>
-    </section>
   </main>
 
   <!-- Token modal -->
@@ -597,18 +488,12 @@
     const reposPerPage = 6;
     let githubToken = localStorage.getItem('github_explorer_token') || '';
     let searchMode = 'username';
-    let billing = 'monthly';
 
     const langColors = {
       JavaScript: '#f1e05a', TypeScript: '#3178c6', Python: '#3572A5', HTML: '#e34c26',
       CSS: '#563d7c', Java: '#b07219', 'C++': '#f34b7d', Ruby: '#701516', Go: '#00ADD8',
       Rust: '#dea584', PHP: '#4F5D95', 'C#': '#178600', Swift: '#ffac45', Kotlin: '#A97BFF',
       Dart: '#00B4AB', Shell: '#89e051',
-    };
-
-    const PRICES = {
-      monthly: { pro: 9, team: 29, proBilled: 'Billed monthly', teamBilled: 'Billed monthly, up to 10 seats', period: '/ month' },
-      yearly: { pro: 7, team: 24, proBilled: 'Billed $84 yearly', teamBilled: 'Billed $288 yearly, up to 10 seats', period: '/ month' },
     };
 
     // Escape any text coming from the GitHub API before inserting it as HTML
@@ -995,28 +880,6 @@
         document.getElementById(`tabBtn${cap}`).className = `tab ${t === tabName ? 'active' : ''}`;
         document.getElementById(`section${cap}`).classList.toggle('hidden', t !== tabName);
       });
-    }
-
-    function setBilling(cycle) {
-      billing = cycle;
-      const p = PRICES[cycle];
-      document.getElementById('billMonthly').className = `seg-btn ${cycle === 'monthly' ? 'active' : ''}`;
-      document.getElementById('billYearly').className = `seg-btn ${cycle === 'yearly' ? 'active' : ''}`;
-      document.getElementById('proPrice').innerText = `$${p.pro}`;
-      document.getElementById('teamPrice').innerText = `$${p.team}`;
-      document.getElementById('proPeriod').innerText = p.period;
-      document.getElementById('teamPeriod').innerText = p.period;
-      document.getElementById('proBilled').innerText = p.proBilled;
-      document.getElementById('teamBilled').innerText = p.teamBilled;
-    }
-
-    function choosePlan(plan) {
-      const messages = {
-        Free: 'You are on the Free plan. Search away!',
-        Pro: `Pro selected (${billing} billing). Checkout will be connected here.`,
-        Team: 'Thanks! Our sales team will reach out. Checkout will be connected here.',
-      };
-      alert(messages[plan]);
     }
 
     function showLoading(show, text = 'Fetching GitHub profile data...') {
